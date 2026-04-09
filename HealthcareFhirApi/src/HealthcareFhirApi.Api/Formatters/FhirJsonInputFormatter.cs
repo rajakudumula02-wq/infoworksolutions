@@ -1,15 +1,16 @@
 using System.Text;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace HealthcareFhirApi.Api.Formatters;
 
 public class FhirJsonInputFormatter : TextInputFormatter
 {
-    private readonly FhirJsonParser _parser = new();
-
     public FhirJsonInputFormatter()
     {
         SupportedMediaTypes.Add("application/fhir+json");
+        SupportedMediaTypes.Add("application/json");
         SupportedEncodings.Add(Encoding.UTF8);
     }
 
@@ -21,7 +22,8 @@ public class FhirJsonInputFormatter : TextInputFormatter
     {
         using var reader = new StreamReader(context.HttpContext.Request.Body, encoding);
         var body = await reader.ReadToEndAsync();
-        var resource = _parser.Parse<Resource>(body);
+        var node = FhirJsonNode.Parse(body);
+        var resource = node.ToPoco<Resource>();
         return InputFormatterResult.Success(resource);
     }
 }

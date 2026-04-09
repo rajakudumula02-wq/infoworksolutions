@@ -29,14 +29,67 @@ public class PreauthController : FhirControllerBase
     }
 
     [HttpPost("$submit")]
-    public async System.Threading.Tasks.Task<IActionResult> Submit(
-        [FromBody] Bundle bundle, CancellationToken ct)
+    public async System.Threading.Tasks.Task<IActionResult> Submit(CancellationToken ct)
     {
-        // Extract the Claim with use="preauthorization" from the bundle
-        var claim = bundle.Entry?
-            .Select(e => e.Resource)
-            .OfType<Claim>()
-            .FirstOrDefault(c => c.UseElement?.Value.ToString()?.ToLower() == "preauthorization");
+        // Read raw body as JsonDocument (same approach as CRD controller)
+        using var reader = new StreamReader(Request.Body);
+        var body = await reader.ReadToEndAsync(ct);
+
+        System.Text.Json.JsonElement root;
+        try { root = System.Text.Json.JsonDocument.Parse(body).RootElement; }
+        catch { return BadRequest(new { error = "Invalid JSON payload" }); }
+
+        // Verify it's a Bundle
+        var resourceType = root.TryGetProperty("resourceType", out var rt) ? rt.GetString() : null;
+        if (resourceType != "Bundle")
+            return BadRequest(new { error = "Expected a FHIR Bundle resource" });
+
+        // Find the Claim entry with use="preauthorization"
+        System.Text.Json.JsonElement? claimElement = null;
+        if (root.TryGetProperty("entry", out var entries))
+        {
+            foreach (var entry in entries.EnumerateArray())
+            {
+                if (entry.TryGetProperty("resource", out var res) &&
+                    res.TryGetProperty("resourceType", out var resType) && resType.GetString() == "Claim" &&
+                    res.TryGetProperty("use", out var use) && use.GetString()?.ToLower() == "preauthorization")
+                {
+                    claimElement = res;
+                    break;
+                }
+            }
+        }
+
+        // Also try top-level (if the Bundle IS the Claim — shouldn't happen but handle gracefully)
+        if (claimElement == null && resourceType == "Claim" &&
+            root.TryGetProperty("use", out var topUse) && topUse.GetString()?.ToLower() == "preauthorization")
+        {
+            claimElement = root;
+        }
+
+        // Parse the full body into FHIR models for downstream processing
+        Bundle bundle;
+        Claim? claim = null;
+        try
+        {
+            #pragma warning disable CS0618 // Suppress obsolete warning for FhirJsonParser
+            var fhirParser = new Hl7.Fhir.Serialization.FhirJsonParser(
+                new Hl7.Fhir.Serialization.ParserSettings { PermissiveParsing = true });
+            bundle = fhirParser.Parse<Bundle>(body);
+            #pragma warning restore CS0618
+
+            claim = bundle.Entry?
+                .Select(e => e.Resource)
+                .OfType<Claim>()
+                .FirstOrDefault(c => c.UseElement?.Value.ToString()?.ToLower() == "preauthorization");
+        }
+        catch
+        {
+            // If FHIR parsing fails, return error with details from JsonDocument validation
+            if (claimElement == null)
+                return BadRequest(new { error = "Bundle must contain a Claim with use='preauthorization'" });
+            return BadRequest(new { error = "Failed to parse FHIR Bundle" });
+        }
 
         if (claim is null)
         {
