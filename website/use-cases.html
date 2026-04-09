@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Use Cases - Infoworks Solutions</title>
+<style>
+:root {
+  --primary-blue: #0066CC;
+  --trust-green: #00A86B;
+  --navy: #1a2332;
+  --light-gray: #F8F9FA;
+  --border-gray: #E5E7EB;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.6;
+  background: white;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Navigation */
+nav {
+  background: white;
+  border-bottom: 1px solid var(--border-gray);
+  padding: 20px 0;
+}
+
+nav .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary-blue);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--primary-blue);
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-primary:hover {
+  background: #0052A3;
+}
+
+/* Hero */
+.hero {
+  padding: 80px 0 60px;
+  background: linear-gradient(180deg, #F0F7FF 0%, white 100%);
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 24px;
+}
+
+.hero p {
+  font-size: 20px;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Use Case Detail */
+.use-case-detail {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.use-case-detail:last-of-type {
+  border-bottom: none;
+}
+
+.use-case-detail:nth-child(even) {
+  background: var(--light-gray);
+}
+
+.use-case-header {
+  max-width: 900px;
+  margin: 0 auto 60px;
+}
+
+.use-case-header h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+
+.use-case-subtitle {
+  font-size: 20px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.challenge {
+  background: #FFF5F5;
+  border-left: 4px solid #DC2626;
+  padding: 20px 24px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 32px;
+}
+
+.challenge h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #991B1B;
+  margin-bottom: 8px;
+}
+
+.challenge p {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.solution {
+  background: #F0F7FF;
+  border-left: 4px solid var(--primary-blue);
+  padding: 20px 24px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 40px;
+}
+
+.solution h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary-blue);
+  margin-bottom: 8px;
+}
+
+.solution p {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto 40px;
+}
+
+.benefit-card {
+  background: white;
+  border: 1px solid var(--border-gray);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.benefit-card h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.benefit-card p {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.products-used {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+  border: 1px solid var(--border-gray);
+}
+
+.products-used h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 20px;
+}
+
+.product-tags {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.product-tag {
+  background: #F0F7FF;
+  color: var(--primary-blue);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* CTA */
+.cta {
+  padding: 80px 0;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, #0052A3 100%);
+  color: white;
+  text-align: center;
+}
+
+.cta h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.cta p {
+  font-size: 18px;
+  margin-bottom: 32px;
+  opacity: 0.9;
+}
+
+.btn-white {
+  background: white;
+  color: var(--primary-blue);
+  padding: 14px 32px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  display: inline-block;
+}
+
+.btn-white:hover {
+  background: #f5f5f5;
+}
+
+/* Footer */
+footer {
+  background: var(--navy);
+  color: white;
+  padding: 60px 0 30px;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.footer-section ul {
+  list-style: none;
+}
+
+.footer-section li {
+  margin-bottom: 12px;
+}
+
+.footer-section a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.footer-section a:hover {
+  color: white;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 30px;
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+  
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="container">
+    <a href="infoworks-homepage.html" class="logo"><img src="cropped-Logo-Design-35-180x180.png" alt="Infoworks Solutions" style="height:60px;vertical-align:middle;margin-right:10px">Infoworks Solutions</a>
+    <div class="nav-links">
+      <a href="products.html">Products</a>
+      <a href="use-cases.html">Use Cases</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="btn-primary">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>Use Cases for Payer Innovation Teams</h1>
+    <p>Real-world scenarios where our APIs drive compliance, engagement, and cost savings</p>
+  </div>
+</section>
+
+<!-- Use Case 1 -->
+<section class="use-case-detail">
+  <div class="container">
+    <div class="use-case-header">
+      <h2>Federal Mandate Compliance</h2>
+      <p class="use-case-subtitle">Deploy CMS-required Patient Access and Payer-to-Payer FHIR APIs to meet regulatory deadlines</p>
+    </div>
+    
+    <div class="challenge">
+      <h3>The Challenge</h3>
+      <p>CMS mandates require dental payers to implement FHIR R4 APIs by specific deadlines. Building this infrastructure from scratch requires 12-18 months of engineering effort, specialized FHIR expertise, and ongoing compliance monitoring. Most payers face resource constraints and tight timelines.</p>
+    </div>
+    
+    <div class="solution">
+      <h3>The Solution</h3>
+      <p>Our pre-built FHIR platform includes 26 resource types with US Core profile validation, SMART on FHIR authorization, and multi-tenant isolation. Deploy in weeks instead of months. Built-in audit logging and compliance reporting reduce ongoing maintenance burden.</p>
+    </div>
+    
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <h4>Time to Compliance</h4>
+        <p>Deploy production-ready FHIR APIs in 4-6 weeks instead of 12-18 months of custom development</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Reduced Engineering Costs</h4>
+        <p>Avoid hiring specialized FHIR developers and infrastructure engineers for a one-time mandate</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Automatic Updates</h4>
+        <p>Stay current with evolving CMS requirements through managed platform updates</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Audit Trail</h4>
+        <p>6-year audit logging built-in for HIPAA compliance and regulatory reporting</p>
+      </div>
+    </div>
+    
+    <div class="products-used">
+      <h3>Products Used</h3>
+      <div class="product-tags">
+        <span class="product-tag">CMS-Compliant FHIR APIs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Use Case 2 -->
+<section class="use-case-detail">
+  <div class="container">
+    <div class="use-case-header">
+      <h2>Member Engagement Apps</h2>
+      <p class="use-case-subtitle">Embed instant oral health scoring into member portals to drive preventive care utilization</p>
+    </div>
+    
+    <div class="challenge">
+      <h3>The Challenge</h3>
+      <p>67% of members skip preventive dental visits until problems become painful and expensive. Member portals exist but lack interactive tools that create urgency around preventive care. Members need instant feedback to take action before small problems become major claims.</p>
+    </div>
+    
+    <div class="solution">
+      <h3>The Solution</h3>
+      <p>Integrate our dental image analysis API into your member portal or mobile app. Members upload a dental photo and receive cavity risk, gum health, plaque level, and overall oral health scores in 3 seconds. High-risk members are automatically flagged for follow-up campaigns.</p>
+    </div>
+    
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <h4>Real-Time Engagement</h4>
+        <p>3-second response time enables in-app instant feedback that drives immediate member action</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Preventive Care Shift</h4>
+        <p>Members with high cavity risk scores schedule cleanings before problems require crowns or root canals</p>
+      </div>
+      <div class="benefit-card">
+        <h4>HEDIS Improvement</h4>
+        <p>Track member oral health trends over time to improve HEDIS dental quality metrics</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Claims Cost Reduction</h4>
+        <p>Early detection prevents $2,000 crowns by catching issues at the $150 filling stage</p>
+      </div>
+    </div>
+    
+    <div class="products-used">
+      <h3>Products Used</h3>
+      <div class="product-tags">
+        <span class="product-tag">AI Dental Image Analysis</span>
+        <span class="product-tag">Member SMS Campaigns</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Use Case 3 -->
+<section class="use-case-detail">
+  <div class="container">
+    <div class="use-case-header">
+      <h2>Teledentistry Programs</h2>
+      <p class="use-case-subtitle">Power virtual dental screening and triage workflows to reduce unnecessary ER visits</p>
+    </div>
+    
+    <div class="challenge">
+      <h3>The Challenge</h3>
+      <p>Members with dental emergencies often visit expensive ERs because they can't get immediate dental care. Teledentistry programs exist but lack diagnostic tools to assess urgency remotely. Dentists need objective data to prioritize high-risk cases.</p>
+    </div>
+    
+    <div class="solution">
+      <h3>The Solution</h3>
+      <p>Members submit dental photos before virtual consultations. Our AI provides pre-visit risk assessment with cavity risk and gum health scores. Dentists use these scores to triage cases, prioritize urgent appointments, and provide clinical decision support during virtual visits.</p>
+    </div>
+    
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <h4>Pre-Visit Triage</h4>
+        <p>Dentists review AI scores before appointments to prepare appropriate treatment plans</p>
+      </div>
+      <div class="benefit-card">
+        <h4>ER Diversion</h4>
+        <p>Members with low-risk scores receive virtual guidance instead of costly ER visits</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Prioritization</h4>
+        <p>High cavity risk scores automatically move members to urgent appointment slots</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Remote Monitoring</h4>
+        <p>Track member oral health changes over time between in-person visits</p>
+      </div>
+    </div>
+    
+    <div class="products-used">
+      <h3>Products Used</h3>
+      <div class="product-tags">
+        <span class="product-tag">AI Dental Image Analysis</span>
+        <span class="product-tag">CMS-Compliant FHIR APIs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Use Case 4 -->
+<section class="use-case-detail">
+  <div class="container">
+    <div class="use-case-header">
+      <h2>Preventive Care Campaigns</h2>
+      <p class="use-case-subtitle">Target SMS outreach based on AI oral health risk scores to drive preventive visit rates</p>
+    </div>
+    
+    <div class="challenge">
+      <h3>The Challenge</h3>
+      <p>Generic "schedule your cleaning" campaigns have low response rates because members don't perceive urgency. Without personalized risk data, payers can't target high-risk members who would benefit most from immediate preventive care.</p>
+    </div>
+    
+    <div class="solution">
+      <h3>The Solution</h3>
+      <p>Use dental AI scores to segment members by risk level. Send targeted SMS campaigns to high cavity risk members with urgent messaging. Track which campaigns drive appointments and measure ROI through claims data. Automated eligibility verification ensures messages only reach active members.</p>
+    </div>
+    
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <h4>Risk-Based Targeting</h4>
+        <p>Members with high AI scores receive urgent "cavity risk detected" messaging instead of generic reminders</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Automated Workflows</h4>
+        <p>Welcome, referral, utilization, and holiday campaigns run automatically with eligibility checks</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Campaign ROI</h4>
+        <p>Track preventive visit rates and claims costs per campaign to measure effectiveness</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Member Retention</h4>
+        <p>Personalized engagement increases member satisfaction and reduces churn</p>
+      </div>
+    </div>
+    
+    <div class="products-used">
+      <h3>Products Used</h3>
+      <div class="product-tags">
+        <span class="product-tag">AI Dental Image Analysis</span>
+        <span class="product-tag">Member SMS Campaigns</span>
+        <span class="product-tag">CMS-Compliant FHIR APIs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Use Case 5 -->
+<section class="use-case-detail">
+  <div class="container">
+    <div class="use-case-header">
+      <h2>Payer-to-Payer Data Exchange</h2>
+      <p class="use-case-subtitle">Seamlessly exchange member clinical and claims data when members switch insurance plans</p>
+    </div>
+    
+    <div class="challenge">
+      <h3>The Challenge</h3>
+      <p>When members change insurance plans, new payers have no visibility into past dental history. This leads to redundant treatments, delayed care, and member frustration. CMS-0057-F mandates require payers to exchange this data via FHIR.</p>
+    </div>
+    
+    <div class="solution">
+      <h3>The Solution</h3>
+      <p>Our FHIR platform includes $member-match operation for patient matching and $everything operation for complete data bundles. Supports mutual TLS for secure payer-to-payer connections. Exchange Patient, Coverage, EOB, and clinical resources automatically when members switch plans.</p>
+    </div>
+    
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <h4>Seamless Transitions</h4>
+        <p>New payers receive complete member history including past treatments and claims</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Better Care Decisions</h4>
+        <p>Dentists access prior dental work to avoid redundant X-rays and unnecessary procedures</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Member Satisfaction</h4>
+        <p>Members don't have to manually request records or repeat medical history</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Compliance</h4>
+        <p>Meet CMS-0057-F payer-to-payer data exchange requirements automatically</p>
+      </div>
+    </div>
+    
+    <div class="products-used">
+      <h3>Products Used</h3>
+      <div class="product-tags">
+        <span class="product-tag">CMS-Compliant FHIR APIs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Use Case 6 -->
+<section class="use-case-detail">
+  <div class="container">
+    <div class="use-case-header">
+      <h2>Prior Authorization Automation</h2>
+      <p class="use-case-subtitle">Streamline preauthorization workflows with FHIR-based submission and status tracking</p>
+    </div>
+    
+    <div class="challenge">
+      <h3>The Challenge</h3>
+      <p>Prior authorization for expensive dental procedures (crowns, implants, orthodontics) involves manual faxing, phone calls, and long wait times. Providers and members lose track of approval status. Delays in authorization lead to delayed care and member complaints.</p>
+    </div>
+    
+    <div class="solution">
+      <h3>The Solution</h3>
+      <p>Providers submit preauthorization requests via our FHIR Claim API with use="preauthorization". $submit operation processes requests and returns ClaimResponse with approval/denial status. $inquire operation allows real-time status queries. All interactions tracked in audit logs.</p>
+    </div>
+    
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <h4>Faster Decisions</h4>
+        <p>Synchronous $submit responds within 5 seconds for straightforward approvals</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Status Transparency</h4>
+        <p>Providers and members check authorization status via API instead of calling</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Reduced Denials</h4>
+        <p>Structured FHIR format ensures all required clinical documentation is submitted upfront</p>
+      </div>
+      <div class="benefit-card">
+        <h4>Workflow Integration</h4>
+        <p>Provider EHR systems integrate directly with API to eliminate manual data entry</p>
+      </div>
+    </div>
+    
+    <div class="products-used">
+      <h3>Products Used</h3>
+      <div class="product-tags">
+        <span class="product-tag">CMS-Compliant FHIR APIs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="container">
+    <h2>Which Use Case Fits Your Needs?</h2>
+    <p>Schedule a demo to discuss your specific payer challenges</p>
+    <a href="contact.html" class="btn-white">Talk to Our Team</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Products</h4>
+        <ul>
+          <li><a href="products.html">AI Dental Analysis</a></li>
+          <li><a href="products.html">FHIR APIs</a></li>
+          <li><a href="products.html">SMS Campaigns</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="use-cases.html">Use Cases</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#privacy">Privacy Policy</a></li>
+          <li><a href="#terms">Terms of Service</a></li>
+          <li><a href="#hipaa">HIPAA Compliance</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:contact@infoworkssolutions.com">contact@infoworkssolutions.com</a></li>
+          <li><a href="mailto:technical@infoworkssolutions.com">technical@infoworkssolutions.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Infoworks Solutions. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
