@@ -1,0 +1,109 @@
+{
+  "extension": {
+    "davinci-crd.requestedVersion": ["2.2"],
+    "davinci-crd.configuration": {
+      "cost": false,
+      "claim": false,
+      "appropriate-use": false,
+      "max-cards": 5
+    }
+  },
+  "hook": "order-sign",
+  "hookInstance": "urn:uuid:d5a80646-7ef5-4edf-ade9-72407ca28c76",
+  "fhirServer": "http://example.org/some-payer/fhir/crd",
+  "fhirAuthorization": {
+    "access_token": "some-opaque-fhir-access-token",
+    "token_type": "Bearer",
+    "expires_in": 300,
+    "scope": "user/Patient.read user/Observation.read",
+    "subject": "cds-service4",
+    "patient": "123"
+  },
+  "context": {
+    "userId": "Practitioner/ABC",
+    "patientId": "123",
+    "encounterId": "987",
+    "draftOrders": {
+      "resourceType": "Bundle",
+      "type": "collection",
+      "entry": [
+        {
+          "fullUrl": "http://example.org/someEHR/fhir/ServiceRequest/1357",
+          "resource": {
+            "resourceType": "ServiceRequest",
+            "id": "1357",
+            "status": "draft",
+            "intent": "original-order",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "726551006",
+                  "display": "Contrast enhanced spectral mammography (Procedure)"
+                }
+              ]
+            },
+            "subject": { "reference": "http://example.org/fhir/Patient/123" },
+            "encounter": { "reference": "http://example.org/fhir/Encounter/987" },
+            "authoredOn": "2019-02-15",
+            "requester": { "reference": "http://example.org/fhir/PractitionerRole/ABC", "display": "Dr. Jones" }
+          }
+        },
+        {
+          "fullUrl": "http://example.org/someEHR/fhir/ServiceRequest/2468",
+          "resource": {
+            "resourceType": "ServiceRequest",
+            "id": "2468",
+            "status": "draft",
+            "intent": "original-order",
+            "code": {
+              "coding": [
+                {
+                  "system": "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+                  "code": "E0431",
+                  "display": "Portable gaseous oxygen system, rental"
+                }
+              ]
+            },
+            "subject": { "reference": "http://example.org/fhir/Patient/123" },
+            "encounter": { "reference": "http://example.org/fhir/Encounter/987" },
+            "authoredOn": "2019-02-15",
+            "requester": { "reference": "http://example.org/fhir/PractitionerRole/ABC", "display": "Dr. Jones" }
+          }
+        }
+      ]
+    }
+  },
+  "prefetch": {
+    "patient": {
+      "resourceType": "Patient",
+      "id": "123",
+      "identifier": [{ "use": "usual", "system": "http://example.org/NamingSystem/mrn", "value": "1032702" }],
+      "active": true,
+      "name": [{ "family": "Baxter", "given": ["Amy", "V."], "suffix": ["PharmD"] }],
+      "telecom": [{ "system": "phone", "value": "555-555-5555", "use": "home" }],
+      "gender": "female",
+      "birthDate": "1987-02-20"
+    },
+    "coverage": {
+      "resourceType": "Bundle",
+      "type": "searchset",
+      "total": 1,
+      "entry": [
+        {
+          "fullUrl": "http://example.org/someEHR/fhir/Coverage/COV1",
+          "resource": {
+            "resourceType": "Coverage",
+            "id": "COV1",
+            "status": "active",
+            "type": { "coding": [{ "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode", "code": "PPO" }], "text": "PPO" },
+            "subscriberId": "888009335",
+            "beneficiary": { "reference": "http://example.org/someEHR/fhir/Patient/123" },
+            "period": { "start": "2020-01-01" },
+            "payor": [{ "reference": "http://example.org/someEHR/fhir/Organization/acme-payer", "display": "Acme Health Plan" }]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\bin\Debug\net10.0\MemberSmsCampaign.Core.deps.json
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\bin\Debug\net10.0\MemberSmsCampaign.Core.dll
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\bin\Debug\net10.0\MemberSmsCampaign.Core.pdb
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\obj\Debug\net10.0\MemberSmsCampaign.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\obj\Debug\net10.0\MemberSmsCampaign.Core.AssemblyInfoInputs.cache
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\obj\Debug\net10.0\MemberSmsCampaign.Core.AssemblyInfo.cs
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\obj\Debug\net10.0\MemberSmsCampaign.Core.csproj.CoreCompileInputs.cache
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\obj\Debug\net10.0\MemberSmsCampaign.Core.dll
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\obj\Debug\net10.0\refint\MemberSmsCampaign.Core.dll
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\obj\Debug\net10.0\MemberSmsCampaign.Core.pdb
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Core\obj\Debug\net10.0\ref\MemberSmsCampaign.Core.dll

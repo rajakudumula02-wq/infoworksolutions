@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healthcare FHIR API — Requirements &amp; Design</title>
+<style>
+:root {
+  --header-bg: #1a1a2e;
+  --header-accent: #e94560;
+  --sidebar-bg: #f8f9fa;
+  --sidebar-border: #dee2e6;
+  --main-bg: #ffffff;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --code-bg: #f1f3f5;
+  --code-border: #dee2e6;
+  --table-header-bg: #e9ecef;
+  --table-alt-row: #f8f9fa;
+  --table-border: #dee2e6;
+  --badge-bg: #0d6efd;
+  --badge-text: #ffffff;
+  --link-color: #0d6efd;
+  --section-border: #e9ecef;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font-sans); color: var(--text-primary); line-height: 1.6; background: var(--main-bg); }
+header { background: var(--header-bg); color: #fff; padding: 1.5rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: .02em; }
+header p { color: #adb5bd; font-size: .9rem; margin-top: .25rem; }
+.layout { display: flex; min-height: calc(100vh - 80px); }
+aside { width: 280px; min-width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); padding: 1.5rem 1rem; position: sticky; top: 80px; height: calc(100vh - 80px); overflow-y: auto; font-size: .85rem; }
+aside h2 { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-bottom: .75rem; }
+aside ul { list-style: none; }
+aside ul li { margin-bottom: .25rem; }
+aside ul li a { color: var(--text-primary); text-decoration: none; display: block; padding: .25rem .5rem; border-radius: 4px; transition: background .15s; }
+aside ul li a:hover { background: #e9ecef; }
+aside ul li ul { padding-left: 1rem; }
+aside ul li ul li a { color: var(--text-secondary); font-size: .82rem; }
+main { flex: 1; max-width: 960px; padding: 2rem 3rem; }
+h2 { font-size: 1.6rem; font-weight: 700; margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--section-border); }
+h3 { font-size: 1.25rem; font-weight: 600; margin: 2rem 0 .75rem; color: var(--text-primary); }
+h4 { font-size: 1.05rem; font-weight: 600; margin: 1.5rem 0 .5rem; }
+p { margin-bottom: 1rem; }
+ul, ol { margin: 0 0 1rem 1.5rem; }
+li { margin-bottom: .35rem; }
+.badge { display: inline-block; background: var(--badge-bg); color: var(--badge-text); font-size: .7rem; font-weight: 700; padding: .15rem .5rem; border-radius: 10px; vertical-align: middle; margin-right: .35rem; letter-spacing: .03em; }
+.badge-green { background: #198754; }
+.badge-purple { background: #6f42c1; }
+.badge-orange { background: #fd7e14; }
+.badge-teal { background: #0dcaf0; color: #000; }
+.badge-red { background: #dc3545; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: .85rem; line-height: 1.5; margin-bottom: 1.5rem; }
+code { font-family: var(--font-mono); font-size: .88em; background: var(--code-bg); padding: .1rem .35rem; border-radius: 3px; }
+pre code { background: none; padding: 0; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: .9rem; }
+th, td { padding: .6rem .75rem; border: 1px solid var(--table-border); text-align: left; }
+th { background: var(--table-header-bg); font-weight: 600; }
+tr:nth-child(even) { background: var(--table-alt-row); }
+a { color: var(--link-color); }
+.intro { background: #f0f4ff; border-left: 4px solid var(--badge-bg); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-bottom: 2rem; }
+.property-card { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.property-card h4 { margin-top: 0; }
+.property-card .validates { font-size: .82rem; color: var(--text-secondary); }
+footer { background: var(--header-bg); color: #adb5bd; text-align: center; padding: 1rem; font-size: .8rem; }
+@media print {
+  aside { display: none; }
+  header { position: static; }
+  main { max-width: 100%; padding: 1rem; }
+  .layout { display: block; }
+  pre { white-space: pre-wrap; word-wrap: break-word; }
+}
+@media (max-width: 768px) {
+  aside { display: none; }
+  main { padding: 1.5rem 1rem; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Healthcare FHIR API Platform</h1>
+  <p>Multi-Tenant CMS-Compliant HL7 FHIR R4 API — Requirements &amp; Design Specification</p>
+</header>
+<div class="layout">
+<aside>
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><a href="#requirements">Requirements</a>
+      <ul>
+        <li><a href="#req-1">1: FHIR Server Foundation</a></li>
+        <li><a href="#req-2">2: Auth &amp; Authorization</a></li>
+        <li><a href="#req-3">3: Patient API</a></li>
+        <li><a href="#req-4">4: Provider API</a></li>
+        <li><a href="#req-5">5: Practitioner API</a></li>
+        <li><a href="#req-6">6: Claim API</a></li>
+        <li><a href="#req-7">7: EOB API</a></li>
+        <li><a href="#req-8">8: Payer-to-Payer</a></li>
+        <li><a href="#req-9">9: Preauthorization</a></li>
+        <li><a href="#req-10">10: Pagination &amp; Search</a></li>
+        <li><a href="#req-11">11: Audit Logging</a></li>
+        <li><a href="#req-12">12: Error Handling</a></li>
+        <li><a href="#req-13">13: Location API</a></li>
+        <li><a href="#req-14">14: Year-End Reports</a></li>
+        <li><a href="#req-15">15: Patient Role API</a></li>
+        <li><a href="#req-16">16: Encounter API</a></li>
+        <li><a href="#req-17">17: Terminology API</a></li>
+        <li><a href="#req-18">18: Provider Directory</a></li>
+        <li><a href="#req-19">19: Coverage API</a></li>
+        <li><a href="#req-20">20: Clinical Data APIs</a></li>
+        <li><a href="#req-21">21: Bulk Data Export</a></li>
+        <li><a href="#req-22">22: SMART App Launch</a></li>
+        <li><a href="#req-23">23: Consent Management</a></li>
+        <li><a href="#req-24">24: Multi-Tenant</a></li>
+        <li><a href="#req-25">25: Admin Portal</a></li>
+        <li><a href="#req-26">26: CMS Compliance</a></li>
+      </ul>
+    </li>
+    <li><a href="#design">Design</a>
+      <ul>
+        <li><a href="#design-overview">Overview</a></li>
+        <li><a href="#design-architecture">Architecture</a></li>
+        <li><a href="#design-components">Components</a></li>
+        <li><a href="#design-data-models">Data Models</a></li>
+        <li><a href="#design-properties">Correctness Properties</a></li>
+        <li><a href="#design-errors">Error Handling</a></li>
+        <li><a href="#design-testing">Testing Strategy</a></li>
+      </ul>
+    </li>
+  </ul>
+</aside>
+<main>
+
+<!-- ============ REQUIREMENTS SECTION ============ -->
+<h2 id="requirements">Requirements</h2>
+
+<div class="intro">
+  <strong>Introduction:</strong> This feature delivers a multi-tenant, CMS-compliant HL7 FHIR R4 API platform designed as a sellable product for insurance companies (payers). The platform exposes healthcare data across twenty-one domains and supports CMS-9115-F (Patient Access API), CMS-0057-F (Payer-to-Payer), SMART App Launch Framework v2.0, and FHIR Bulk Data Access IG. Each payer tenant receives isolated data storage, tenant-specific configuration, and dedicated compliance reporting.
+</div>
+
+<h3 id="req-1"><span class="badge">REQ-1</span> FHIR Server Foundation</h3>
+<p><strong>User Story:</strong> As a platform engineer, I want a standards-compliant FHIR R4 server base, so that all APIs share consistent behavior, versioning, and metadata discovery.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>THE FHIR_Server SHALL expose a <code>/metadata</code> endpoint returning a valid HL7 FHIR R4 CapabilityStatement</li>
+  <li>THE FHIR_Server SHALL support <code>application/fhir+json</code> as the default content type</li>
+  <li>THE FHIR_Server SHALL support <code>application/fhir+xml</code> as an alternative content type via <code>Accept</code> header</li>
+  <li>WHEN unsupported content type is sent, return HTTP 415 with OperationOutcome</li>
+  <li>THE FHIR_Server SHALL include <code>fhirVersion</code> of <code>4.0.1</code> in all CapabilityStatement responses</li>
+  <li>WHEN unknown endpoint is requested, return HTTP 404 with OperationOutcome</li>
+  <li>THE FHIR_Server SHALL assign a unique logical <code>id</code> to every resource upon creation</li>
+</ol>
+
+<h3 id="req-2"><span class="badge badge-green">REQ-2</span> Authentication and Authorization</h3>
+<p><strong>User Story:</strong> As a security engineer, I want all API access controlled via SMART on FHIR, so that only authorized Clients can read or modify protected health information.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Require SMART_Auth OAuth 2.0 bearer tokens for all resource endpoints</li>
+  <li>Expired or invalid bearer token → HTTP 401 with OperationOutcome</li>
+  <li>Resource outside granted scopes → HTTP 403 with OperationOutcome</li>
+  <li>Support SMART scopes: <code>patient/*.read</code>, <code>user/*.read</code>, <code>system/*.read</code></li>
+  <li>Support PKCE in the SMART_Auth authorization code flow</li>
+  <li>Access token expiry no more than 3600 seconds</li>
+</ol>
+
+<h3 id="req-3"><span class="badge badge-purple">REQ-3</span> Patient API</h3>
+<p><strong>User Story:</strong> As a healthcare application developer, I want to retrieve and manage Patient resources in FHIR R4 format.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /Patient/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /Patient</code> with params <code>_id</code>, <code>identifier</code>, <code>name</code>, <code>birthdate</code>, <code>gender</code>, <code>address-postalcode</code></li>
+  <li>Support <code>create</code>: <code>POST /Patient</code></li>
+  <li>Support <code>update</code>: <code>PUT /Patient/{id}</code></li>
+  <li>Search returns FHIR Bundle of type <code>searchset</code></li>
+  <li>Validate against US Core Patient profile on create/update</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Not found → HTTP 404 with OperationOutcome</li>
+  <li>Include at least one <code>identifier</code> with system URI in every response</li>
+</ol>
+
+<h3 id="req-4"><span class="badge badge-orange">REQ-4</span> Provider API</h3>
+<p><strong>User Story:</strong> As a healthcare application developer, I want to retrieve and manage Organization resources representing healthcare providers.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /Organization/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /Organization</code> with params <code>_id</code>, <code>identifier</code>, <code>name</code>, <code>type</code>, <code>address-state</code></li>
+  <li>Support <code>create</code>: <code>POST /Organization</code></li>
+  <li>Support <code>update</code>: <code>PUT /Organization/{id}</code></li>
+  <li>Search returns FHIR Bundle of type <code>searchset</code></li>
+  <li>Validate against US Core Organization profile</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Include NPI <code>identifier</code> where known</li>
+</ol>
+
+<h3 id="req-5"><span class="badge">REQ-5</span> Practitioner API</h3>
+<p><strong>User Story:</strong> As a healthcare application developer, I want to retrieve Practitioner and PractitionerRole resources.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /Practitioner/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /Practitioner</code> with params <code>_id</code>, <code>identifier</code>, <code>name</code>, <code>specialty</code></li>
+  <li>Support <code>read</code>: <code>GET /PractitionerRole/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /PractitionerRole</code> with params <code>practitioner</code>, <code>organization</code>, <code>role</code>, <code>specialty</code></li>
+  <li>Validate Practitioner against US Core Practitioner profile</li>
+  <li>Validate PractitionerRole against US Core PractitionerRole profile</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Include NPI <code>identifier</code> where known</li>
+</ol>
+
+<h3 id="req-6"><span class="badge badge-green">REQ-6</span> Claim API</h3>
+<p><strong>User Story:</strong> As a billing system, I want to submit and retrieve FHIR Claim resources.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /Claim/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /Claim</code> with params <code>_id</code>, <code>patient</code>, <code>provider</code>, <code>status</code>, <code>created</code></li>
+  <li>Support <code>create</code>: <code>POST /Claim</code></li>
+  <li>Support <code>read</code>: <code>GET /ClaimResponse/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /ClaimResponse</code> with params <code>_id</code>, <code>patient</code>, <code>request</code>, <code>outcome</code></li>
+  <li>Validate Claim against FHIR R4 Claim base profile</li>
+  <li>Validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Successful creation → HTTP 201 with <code>Location</code> header</li>
+  <li>Support Claim <code>status</code> values: <code>active</code>, <code>cancelled</code>, <code>draft</code>, <code>entered-in-error</code></li>
+</ol>
+
+<h3 id="req-7"><span class="badge badge-purple">REQ-7</span> Explanation of Benefits (EOB) API</h3>
+<p><strong>User Story:</strong> As a patient portal application, I want to retrieve ExplanationOfBenefit resources for cost and coverage information.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /ExplanationOfBenefit/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /ExplanationOfBenefit</code> with params <code>_id</code>, <code>patient</code>, <code>provider</code>, <code>created</code>, <code>status</code></li>
+  <li>Search returns Bundle with pagination links (<code>self</code>, <code>next</code>, <code>previous</code>)</li>
+  <li>Validate against CARIN Blue Button EOB profile</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Include <code>item.adjudication</code> elements (allowed amount, paid amount, patient responsibility)</li>
+  <li>Patient outside authorized scope → HTTP 403 with OperationOutcome</li>
+</ol>
+
+<h3 id="req-8"><span class="badge badge-orange">REQ-8</span> Payer-to-Payer API</h3>
+<p><strong>User Story:</strong> As a payer organization, I want to exchange member clinical and claims data with other payers via FHIR for CMS interoperability compliance.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>$member-match</code> operation on Patient resource</li>
+  <li>Support Da Vinci PDex <code>$everything</code> operation</li>
+  <li><code>$member-match</code> returns matched Patient or HTTP 422 OperationOutcome</li>
+  <li>Require mutual TLS (mTLS) in addition to SMART_Auth bearer tokens</li>
+  <li><code>$everything</code> returns Bundle with Patient, Coverage, EOB, and clinical resources</li>
+  <li>Support <code>_since</code> parameter on <code>$everything</code></li>
+  <li>Unauthorized partner payer → HTTP 403 with OperationOutcome</li>
+</ol>
+
+<h3 id="req-9"><span class="badge">REQ-9</span> Preauthorization API</h3>
+<p><strong>User Story:</strong> As a provider system, I want to submit and track prior authorization requests using FHIR.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support submission via <code>POST /Claim</code> with <code>use</code> set to <code>preauthorization</code></li>
+  <li>Support <code>$submit</code> operation per Da Vinci Prior Authorization Support IG</li>
+  <li>Return ClaimResponse with <code>outcome</code> of <code>queued</code>, <code>complete</code>, or <code>error</code></li>
+  <li>Support <code>read</code>: <code>GET /ClaimResponse/{id}</code></li>
+  <li>Update ClaimResponse <code>disposition</code> with approval/denial reason</li>
+  <li>Support <code>$inquire</code> operation for status queries</li>
+  <li>Missing clinical documentation → HTTP 422 with OperationOutcome</li>
+  <li>Respond to <code>$submit</code> within 5 seconds for synchronous decisions</li>
+</ol>
+
+<h3 id="req-10"><span class="badge badge-green">REQ-10</span> Pagination and Search Result Consistency</h3>
+<p><strong>User Story:</strong> As an API consumer, I want consistent pagination across all search endpoints.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>_count</code> parameter (default 20, max 100)</li>
+  <li>Include <code>next</code> and <code>self</code> Bundle links when results exceed page size</li>
+  <li>Support <code>_sort</code> parameter on all search interactions</li>
+  <li>Support <code>_include</code> and <code>_revinclude</code> parameters</li>
+  <li>Zero results → HTTP 200 with empty Bundle of type <code>searchset</code></li>
+</ol>
+
+<h3 id="req-11"><span class="badge badge-purple">REQ-11</span> Audit Logging</h3>
+<p><strong>User Story:</strong> As a compliance officer, I want all PHI access events logged for HIPAA audit trail requirements.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Create AuditEvent for every read, search, create, update on Patient, EOB, Claim, ClaimResponse</li>
+  <li>Record client identity, resource type, resource id, action type, and timestamp</li>
+  <li>Retain AuditEvent records for minimum 6 years</li>
+  <li><code>GET /AuditEvent</code> returns events scoped to client's authorized patient population</li>
+</ol>
+
+<h3 id="req-12"><span class="badge badge-orange">REQ-12</span> Error Handling and Validation</h3>
+<p><strong>User Story:</strong> As an API consumer, I want consistent, descriptive error responses.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Return OperationOutcome for every 4xx and 5xx response</li>
+  <li>Missing required field → HTTP 422 with <code>issue.severity</code> of <code>error</code></li>
+  <li>Internal error → HTTP 500 with <code>issue.code</code> of <code>exception</code>, no stack traces</li>
+  <li>ResourceType mismatch → HTTP 400 with OperationOutcome</li>
+</ol>
+
+<h3 id="req-13"><span class="badge">REQ-13</span> Location API</h3>
+<p><strong>User Story:</strong> As a healthcare application developer, I want to retrieve and manage Location resources.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /Location/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /Location</code> with params <code>_id</code>, <code>name</code>, <code>address</code>, <code>address-city</code>, <code>address-state</code>, <code>address-postalcode</code>, <code>type</code>, <code>organization</code></li>
+  <li>Support <code>create</code>: <code>POST /Location</code></li>
+  <li>Support <code>update</code>: <code>PUT /Location/{id}</code></li>
+  <li>Search returns FHIR Bundle of type <code>searchset</code></li>
+  <li>Validate against US Core Location profile</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Not found → HTTP 404 with OperationOutcome</li>
+  <li>Include <code>managingOrganization</code> reference where known</li>
+</ol>
+
+<h3 id="req-14"><span class="badge badge-green">REQ-14</span> Year-End Reports API</h3>
+<p><strong>User Story:</strong> As a member services application, I want to generate annual summary reports per member.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>GET /Report/year-end</code> with <code>member</code> and <code>year</code> params</li>
+  <li>Return year-end summary: total claims, paid amount, patient responsibility, covered services</li>
+  <li><code>format=fhir-bundle</code> → FHIR Bundle of type <code>document</code></li>
+  <li><code>format=json</code> or omitted → structured JSON object</li>
+  <li>No data → HTTP 200 with zero claims/amounts</li>
+  <li>Unknown member → HTTP 404 with OperationOutcome</li>
+  <li>Member outside authorized scope → HTTP 403</li>
+  <li>Create AuditEvent for every report generation request</li>
+</ol>
+
+<h3 id="req-15"><span class="badge badge-purple">REQ-15</span> Patient Role API (RelatedPerson)</h3>
+<p><strong>User Story:</strong> As a healthcare application developer, I want to manage RelatedPerson resources for guardians, emergency contacts, and caregivers.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /RelatedPerson/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /RelatedPerson</code> with params <code>patient</code>, <code>relationship</code>, <code>name</code>, <code>_id</code></li>
+  <li>Support <code>create</code>: <code>POST /RelatedPerson</code></li>
+  <li>Support <code>update</code>: <code>PUT /RelatedPerson/{id}</code></li>
+  <li>Search returns FHIR Bundle of type <code>searchset</code></li>
+  <li>Validate against US Core RelatedPerson profile</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Not found → HTTP 404 with OperationOutcome</li>
+  <li>Include <code>patient</code> reference and at least one <code>relationship</code> coding</li>
+</ol>
+
+<h3 id="req-16"><span class="badge badge-orange">REQ-16</span> Encounter API</h3>
+<p><strong>User Story:</strong> As a healthcare application developer, I want to manage Encounter resources for patient visits and care events.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /Encounter/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /Encounter</code> with params <code>patient</code>, <code>status</code>, <code>class</code>, <code>date</code>, <code>practitioner</code>, <code>location</code>, <code>_id</code></li>
+  <li>Support <code>create</code>: <code>POST /Encounter</code></li>
+  <li>Support <code>update</code>: <code>PUT /Encounter/{id}</code></li>
+  <li>Search returns FHIR Bundle of type <code>searchset</code></li>
+  <li>Validate against US Core Encounter profile</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Not found → HTTP 404 with OperationOutcome</li>
+  <li>Include <code>subject</code> reference to Patient and <code>status</code> element</li>
+</ol>
+
+<h3 id="req-17"><span class="badge">REQ-17</span> Medical Knowledge API (Terminology)</h3>
+<p><strong>User Story:</strong> As a clinical application developer, I want to perform terminology lookups and value set expansions via FHIR operations.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>$lookup</code> on CodeSystem with params <code>system</code>, <code>code</code>, <code>version</code></li>
+  <li>Support <code>$validate-code</code> on ValueSet with params <code>url</code>, <code>system</code>, <code>code</code>, <code>display</code></li>
+  <li>Support <code>$expand</code> on ValueSet with params <code>url</code>, <code>filter</code>, <code>count</code></li>
+  <li>Support SNOMED_CT, LOINC, ICD-10, CPT, and RxNorm code systems</li>
+  <li><code>$lookup</code> returns Parameters with display name, definition, designations</li>
+  <li><code>$validate-code</code> returns Parameters with <code>result</code> boolean</li>
+  <li><code>$expand</code> returns ValueSet with <code>expansion</code> element</li>
+  <li>Unsupported code system → HTTP 400 with OperationOutcome</li>
+  <li>Support <code>ConceptMap/$translate</code> with params <code>url</code>, <code>system</code>, <code>code</code>, <code>targetsystem</code></li>
+</ol>
+
+<h3 id="req-18"><span class="badge badge-green">REQ-18</span> Provider Directory API</h3>
+<p><strong>User Story:</strong> As a health plan application, I want to search provider directory data per the Da Vinci PDEX Plan Net IG.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code> for Practitioner, Organization, Location, OrganizationAffiliation, PractitionerRole, HealthcareService</li>
+  <li>Search Practitioner by <code>specialty</code>, <code>name</code>, <code>identifier</code>, <code>_id</code></li>
+  <li>Search Organization by <code>name</code>, <code>type</code>, <code>identifier</code>, <code>_id</code></li>
+  <li>Search Location by <code>near</code> (proximity), <code>address</code>, <code>address-state</code>, <code>type</code>, <code>organization</code></li>
+  <li>Search PractitionerRole by <code>specialty</code>, <code>organization</code>, <code>network</code>, <code>location</code>, <code>accepting-patients</code></li>
+  <li>Search returns FHIR Bundle of type <code>searchset</code></li>
+  <li><code>near</code> parameter returns Locations within specified distance, ordered by proximity</li>
+  <li>Validate against PDEX_Plan_Net profiles</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Support <code>insurance-plan</code> filter on PractitionerRole search</li>
+</ol>
+
+<h3 id="req-19"><span class="badge badge-purple">REQ-19</span> Coverage API</h3>
+<p><strong>User Story:</strong> As a healthcare application developer, I want to manage Coverage resources for patient insurance coverage.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /Coverage/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /Coverage</code> with params <code>patient</code>, <code>subscriber</code>, <code>payor</code>, <code>status</code>, <code>period</code>, <code>_id</code></li>
+  <li>Support <code>create</code>: <code>POST /Coverage</code></li>
+  <li>Support <code>update</code>: <code>PUT /Coverage/{id}</code></li>
+  <li>Search returns FHIR Bundle of type <code>searchset</code></li>
+  <li>Validate against US Core Coverage profile</li>
+  <li>Profile validation failure → HTTP 422 with OperationOutcome</li>
+  <li>Not found → HTTP 404 with OperationOutcome</li>
+  <li>Include <code>beneficiary</code>, <code>payor</code>, and <code>class</code> (plan details) elements</li>
+</ol>
+
+<h3 id="req-20"><span class="badge badge-orange">REQ-20</span> Clinical Data APIs (CMS-9115-F Patient Access)</h3>
+<p><strong>User Story:</strong> As a patient-facing application developer, I want to retrieve clinical data resources (conditions, allergies, medications, immunizations, procedures, diagnostic reports) via FHIR R4 APIs as required by CMS-9115-F.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Condition: <code>read</code> and <code>search</code> (params: <code>patient</code>, <code>category</code>, <code>clinical-status</code>, <code>onset-date</code>)</li>
+  <li>Condition: Validate against US Core Condition profile</li>
+  <li>AllergyIntolerance: <code>read</code> and <code>search</code> (params: <code>patient</code>, <code>clinical-status</code>)</li>
+  <li>AllergyIntolerance: Validate against US Core AllergyIntolerance profile</li>
+  <li>MedicationRequest: <code>read</code> and <code>search</code> (params: <code>patient</code>, <code>status</code>, <code>intent</code>)</li>
+  <li>MedicationRequest: Validate against US Core MedicationRequest profile</li>
+  <li>Immunization: <code>read</code> and <code>search</code> (params: <code>patient</code>, <code>date</code>, <code>status</code>)</li>
+  <li>Immunization: Validate against US Core Immunization profile</li>
+  <li>Procedure: <code>read</code> and <code>search</code> (params: <code>patient</code>, <code>date</code>, <code>status</code>, <code>code</code>)</li>
+  <li>Procedure: Validate against US Core Procedure profile</li>
+  <li>DiagnosticReport: <code>read</code> and <code>search</code> (params: <code>patient</code>, <code>category</code>, <code>date</code>, <code>code</code>)</li>
+  <li>DiagnosticReport: Validate against US Core DiagnosticReport profile</li>
+  <li>All profile validation failures → HTTP 422 with OperationOutcome</li>
+  <li>All searches return FHIR Bundle of type <code>searchset</code></li>
+  <li>Not found → HTTP 404 with OperationOutcome</li>
+</ol>
+
+<h3 id="req-21"><span class="badge">REQ-21</span> Bulk Data Export (CMS-9115-F)</h3>
+<p><strong>User Story:</strong> As a payer data analyst, I want to export large volumes of FHIR data in bulk using the FHIR Bulk Data Access IG.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>$export</code> at system level: <code>POST /$export</code></li>
+  <li>Support <code>$export</code> at Patient level: <code>POST /Patient/$export</code></li>
+  <li>Support <code>$export</code> at Group level: <code>POST /Group/{id}/$export</code></li>
+  <li>Support <code>_since</code> parameter to filter by last updated date</li>
+  <li>Support <code>_type</code> parameter to filter by resource type</li>
+  <li>Support <code>_outputFormat</code> parameter (default: <code>application/fhir+ndjson</code>)</li>
+  <li>Return all exported data in NDJSON format (one resource per line)</li>
+  <li>Accepted → HTTP 202 with <code>Content-Location</code> header for polling</li>
+  <li>In progress → HTTP 202 with optional <code>X-Progress</code> header</li>
+  <li>Complete → HTTP 200 with JSON body containing <code>transactionTime</code>, <code>request</code>, <code>requiresAccessToken</code>, <code>output</code> array</li>
+  <li>Require SMART_Backend_Services authentication (client credentials + signed JWT)</li>
+  <li>Unsupported <code>_type</code> → HTTP 400 with OperationOutcome</li>
+</ol>
+
+<h3 id="req-22"><span class="badge badge-green">REQ-22</span> SMART App Launch Configuration</h3>
+<p><strong>User Story:</strong> As a third-party SMART app developer, I want to discover authorization endpoints and capabilities.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Expose <code>/.well-known/smart-configuration</code> returning JSON</li>
+  <li>Include <code>authorization_endpoint</code></li>
+  <li>Include <code>token_endpoint</code></li>
+  <li>Include <code>scopes_supported</code></li>
+  <li>Include <code>code_challenge_methods_supported</code> with at least <code>S256</code></li>
+  <li>Include <code>capabilities</code>: <code>launch-ehr</code>, <code>launch-standalone</code>, <code>client-public</code>, <code>client-confidential-symmetric</code>, <code>sso-openid-connect</code></li>
+  <li>Support standalone launch sequence (SMART v2.0)</li>
+  <li>Support EHR launch sequence (SMART v2.0)</li>
+  <li>Return with <code>Content-Type: application/json</code></li>
+  <li>Include <code>grant_types_supported</code>: <code>authorization_code</code>, <code>client_credentials</code></li>
+</ol>
+
+<h3 id="req-23"><span class="badge badge-purple">REQ-23</span> Consent Management (CMS-0057-F)</h3>
+<p><strong>User Story:</strong> As a payer compliance officer, I want to manage patient consent for Payer-to-Payer data exchange using FHIR Consent resources.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>read</code>: <code>GET /Consent/{id}</code></li>
+  <li>Support <code>search</code>: <code>GET /Consent</code> with params <code>patient</code>, <code>status</code>, <code>category</code>, <code>period</code></li>
+  <li>Support <code>create</code>: <code>POST /Consent</code></li>
+  <li>Support <code>update</code>: <code>PUT /Consent/{id}</code></li>
+  <li>Require <code>scope</code>, <code>patient</code> reference, and <code>period</code> elements</li>
+  <li>Missing required elements → HTTP 422 with OperationOutcome</li>
+  <li>Support <code>status</code> values: <code>active</code>, <code>inactive</code>, <code>rejected</code>, <code>entered-in-error</code></li>
+  <li>Payer-to-Payer exchange requires active Consent verification</li>
+  <li>No active Consent → HTTP 403 with OperationOutcome</li>
+  <li>Search returns FHIR Bundle of type <code>searchset</code></li>
+  <li>Not found → HTTP 404 with OperationOutcome</li>
+</ol>
+
+<h3 id="req-24"><span class="badge badge-orange">REQ-24</span> Multi-Tenant Architecture</h3>
+<p><strong>User Story:</strong> As a platform operator, I want each insurance company to have isolated data storage and tenant-specific configuration.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Isolate all FHIR resource data per Tenant</li>
+  <li>Identify Tenant from subdomain, API key, or JWT claim</li>
+  <li>Resolve Tenant identity before processing any FHIR interaction</li>
+  <li>Unresolvable Tenant → HTTP 401 with OperationOutcome</li>
+  <li>Support tenant-specific configuration (branding, SMART_Auth endpoints, database)</li>
+  <li>Enforce cross-tenant data isolation at repository layer</li>
+  <li>Support <code>POST /tenants</code> to provision new payer organization</li>
+  <li>Return Tenant configuration including assigned tenant identifier</li>
+  <li>Cross-tenant data access silently excluded from result sets</li>
+</ol>
+
+<h3 id="req-25"><span class="badge badge-red">REQ-25</span> Admin Portal and Tenant Management</h3>
+<p><strong>User Story:</strong> As a platform administrator, I want an administrative API for managing tenants, monitoring API usage, and configuring rate limits.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Create Tenant via <code>POST /admin/tenants</code> (org name, contact email, plan tier)</li>
+  <li>Update Tenant via <code>PUT /admin/tenants/{id}</code></li>
+  <li>Deactivate Tenant via <code>PATCH /admin/tenants/{id}/deactivate</code></li>
+  <li>Deactivated Tenant → all requests return HTTP 403</li>
+  <li>Usage metrics via <code>GET /admin/tenants/{id}/metrics</code></li>
+  <li>Configure rate limits via <code>PUT /admin/tenants/{id}/rate-limit</code></li>
+  <li>Rate limit exceeded → HTTP 429 with OperationOutcome</li>
+  <li>API key management: create and revoke</li>
+  <li>Revoked API key → HTTP 401 with OperationOutcome</li>
+</ol>
+
+<h3 id="req-26"><span class="badge badge-teal">REQ-26</span> CMS Compliance Reporting</h3>
+<p><strong>User Story:</strong> As a payer compliance officer, I want to generate CMS attestation reports showing API availability, response times, and error rates.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>Support <code>GET /admin/compliance/report</code> with <code>tenant</code>, <code>start-date</code>, <code>end-date</code></li>
+  <li>Return uptime percentage, average response time, error rate per endpoint</li>
+  <li>Track CMS-required metrics: uptime, response time, error rate, request volume</li>
+  <li>Support <code>format=pdf</code> export</li>
+  <li>Support <code>format=csv</code> export</li>
+  <li>Default format: structured JSON</li>
+  <li>No data → HTTP 200 with zero-request report</li>
+  <li>Unknown Tenant → HTTP 404 with OperationOutcome</li>
+  <li>Restrict access to <code>admin</code> or <code>compliance-officer</code> role</li>
+</ol>
+
+<!-- ============ DESIGN SECTION ============ -->
+<h2 id="design">Design</h2>
+
+<h3 id="design-overview">Overview</h3>
+<p>The Healthcare FHIR API is an HL7 FHIR R4-compliant multi-tenant platform built on ASP.NET Core 8, exposing twenty-one clinical and administrative domains. The platform uses the Firely SDK (<code>Hl7.Fhir.R4</code>) for FHIR resource modeling and serialization, Entity Framework Core with SQL Server (JSONB-style storage) for persistence, <code>Microsoft.AspNetCore.Authentication.JwtBearer</code> for SMART on FHIR JWT validation, and Redis (<code>StackExchange.Redis</code>) for terminology caching.</p>
+<p>Testing uses xUnit with FsCheck for property-based tests. The platform supports CMS-9115-F, CMS-0057-F, SMART App Launch Framework v2.0, and FHIR Bulk Data Access IG. Each payer tenant receives isolated data storage, tenant-specific configuration, rate limiting, and dedicated compliance reporting.</p>
+
+<h3 id="design-architecture">Architecture</h3>
+<h4>Technology Stack</h4>
+<table>
+  <tr><th>Layer</th><th>Technology</th></tr>
+  <tr><td>API Framework</td><td>ASP.NET Core 8</td></tr>
+  <tr><td>FHIR SDK</td><td>Firely SDK (Hl7.Fhir.R4)</td></tr>
+  <tr><td>Database</td><td>PostgreSQL with JSONB columns (EF Core)</td></tr>
+  <tr><td>Cache</td><td>Redis (StackExchange.Redis)</td></tr>
+  <tr><td>Auth</td><td>Microsoft.AspNetCore.Authentication.JwtBearer</td></tr>
+  <tr><td>Testing</td><td>xUnit + FsCheck</td></tr>
+  <tr><td>Bulk Export Storage</td><td>Blob Storage (NDJSON files)</td></tr>
+</table>
+
+<h4>Middleware Pipeline</h4>
+<ol>
+  <li><code>TenantResolutionMiddleware</code> — resolves tenant from subdomain, API key, or JWT claim</li>
+  <li><code>FhirExceptionMiddleware</code> — maps exceptions to OperationOutcome + HTTP status</li>
+  <li><code>UseAuthentication</code> — validates JWT bearer tokens</li>
+  <li><code>UseAuthorization</code> — enforces SMART on FHIR scope policies</li>
+  <li><code>FhirContentNegotiationMiddleware</code> — validates Content-Type / Accept headers</li>
+  <li><code>RateLimitingMiddleware</code> — enforces tenant-level rate limits</li>
+  <li><code>AuditLoggingMiddleware</code> — creates AuditEvent records for PHI interactions</li>
+  <li><code>UseRouting / UseEndpoints</code> — routes to controllers</li>
+</ol>
+
+<h3 id="design-components">Components &amp; Interfaces</h3>
+
+<h4>Core Interfaces</h4>
+<pre><code>// IFhirResourceRepository&lt;TResource&gt;
+Task&lt;TResource?&gt; GetByIdAsync(string id, CancellationToken ct)
+Task&lt;PagedResult&lt;TResource&gt;&gt; SearchAsync(SearchParameters parameters, CancellationToken ct)
+Task&lt;TResource&gt; CreateAsync(TResource resource, CancellationToken ct)
+Task&lt;TResource&gt; UpdateAsync(string id, TResource resource, CancellationToken ct)
+
+// IFhirValidationService
+Task&lt;OperationOutcome&gt; ValidateAsync(Resource resource, string profileUrl, CancellationToken ct)
+bool IsValid(OperationOutcome outcome)
+
+// IAuditService
+Task RecordAsync(AuditContext context, CancellationToken ct)
+Task&lt;Bundle&gt; QueryAsync(string clientId, string patientId, CancellationToken ct)
+
+// IPaginationService
+Bundle BuildSearchBundle(IEnumerable&lt;Resource&gt; resources, SearchParameters params, int totalCount, string baseUrl)
+(int skip, int take) ResolvePage(int? count, string? pageToken)
+
+// ITerminologyService
+Task&lt;Parameters&gt; LookupAsync(string system, string code, string? version, CancellationToken ct)
+Task&lt;Parameters&gt; ValidateCodeAsync(string url, string system, string code, string? display, CancellationToken ct)
+Task&lt;ValueSet&gt; ExpandAsync(string url, string? filter, int? count, CancellationToken ct)
+Task&lt;Parameters&gt; TranslateAsync(string url, string system, string code, string targetSystem, CancellationToken ct)
+
+// IBulkExportService
+Task&lt;BulkExportJob&gt; StartExportAsync(BulkExportLevel level, string? groupId, DateTimeOffset? since, IReadOnlyList&lt;string&gt;? types, string outputFormat, CancellationToken ct)
+Task&lt;BulkExportJob&gt; GetJobStatusAsync(string jobId, CancellationToken ct)
+
+// IConsentService
+Task&lt;bool&gt; HasActiveConsentAsync(string patientId, CancellationToken ct)
+Task ValidateConsentRequiredFieldsAsync(Consent consent, CancellationToken ct)
+
+// ITenantService
+Task&lt;TenantEntity&gt; ProvisionAsync(CreateTenantRequest request, CancellationToken ct)
+Task DeactivateAsync(string tenantId, CancellationToken ct)
+Task&lt;TenantEntity?&gt; ResolveFromApiKeyAsync(string apiKey, CancellationToken ct)
+Task SetRateLimitAsync(string tenantId, RateLimitConfig config, CancellationToken ct)
+
+// IMetricsService
+Task&lt;ComplianceReportResult&gt; GenerateComplianceReportAsync(string tenantId, DateTimeOffset start, DateTimeOffset end, CancellationToken ct)</code></pre>
+
+<h4>Controller Pattern</h4>
+<p>All resource controllers follow the same pattern: inject repository, validation service, audit service, and pagination service. They return <code>IActionResult</code> with Firely <code>Resource</code> objects serialized by a custom <code>FhirJsonOutputFormatter</code>.</p>
+
+<h4>Pagination Engine</h4>
+<p>Default page size: 20. Maximum: 100. Bundle links include <code>self</code>, <code>next</code>, and <code>previous</code> as appropriate.</p>
+
+<h4>Terminology Service</h4>
+<p>Supported code systems: SNOMED_CT, LOINC, ICD-10, CPT, RxNorm. Results cached in Redis with 24-hour TTL.</p>
+
+<h4>Multi-Tenant Infrastructure</h4>
+<p>Tenant resolution strategies (in order): X-Api-Key header → JWT <code>tenant_id</code> claim → subdomain. All database queries scoped by <code>TenantContext.TenantId</code>. Rate limiting enforced per-tenant via sliding window counter in Redis.</p>
+
+<h3 id="design-data-models">Data Models</h3>
+
+<h4>FHIR Resource Entity (PostgreSQL)</h4>
+<pre><code>public class FhirResourceEntity {
+    public string Id           { get; set; }  // FHIR logical id
+    public string ResourceType { get; set; }  // e.g. "Patient"
+    public string TenantId     { get; set; }  // tenant isolation
+    public string Data         { get; set; }  // JSONB column
+    public DateTimeOffset LastUpdated { get; set; }
+    public bool IsDeleted      { get; set; }
+    public long VersionId      { get; set; }
+}</code></pre>
+
+<h4>Tenant Entity</h4>
+<pre><code>public class TenantEntity {
+    public string Id                     { get; set; }
+    public string OrganizationName       { get; set; }
+    public string ContactEmail           { get; set; }
+    public string PlanTier               { get; set; }  // "basic", "standard", "enterprise"
+    public bool IsActive                 { get; set; }
+    public string? SmartAuthority        { get; set; }
+    public string? DatabaseConnectionString { get; set; }
+    public int RateLimitRequestsPerSecond { get; set; }
+    public int RateLimitBurstSize        { get; set; }
+}</code></pre>
+
+<h4>Bulk Export Job</h4>
+<pre><code>public record BulkExportJob(
+    string JobId,
+    BulkExportStatus Status,       // Accepted, InProgress, Complete, Error
+    BulkExportLevel Level,         // System, Patient, Group
+    string? GroupId,
+    DateTimeOffset? Since,
+    IReadOnlyList&lt;string&gt;? Types,
+    string OutputFormat,
+    DateTimeOffset RequestedAt,
+    DateTimeOffset? CompletedAt,
+    int? ProgressPercent,
+    IReadOnlyList&lt;BulkExportOutputFile&gt;? OutputFiles
+);</code></pre>
+
+<h4>Compliance Report</h4>
+<pre><code>public record ComplianceReportResult(
+    string TenantId,
+    DateTimeOffset StartDate,
+    DateTimeOffset EndDate,
+    decimal UptimePercentage,
+    IReadOnlyList&lt;EndpointMetric&gt; EndpointMetrics,
+    long TotalRequests,
+    decimal OverallErrorRate
+);
+
+public record EndpointMetric(
+    string Endpoint,
+    long RequestCount,
+    decimal AverageLatencyMs,
+    decimal ErrorRatePercent
+);</code></pre>
+
+<h4>Firely SDK Resource Types</h4>
+<table>
+  <tr><th>FHIR Resource</th><th>Firely Type</th><th>Domain</th></tr>
+  <tr><td>Patient</td><td><code>Hl7.Fhir.Model.Patient</code></td><td>Patient API</td></tr>
+  <tr><td>Organization</td><td><code>Hl7.Fhir.Model.Organization</code></td><td>Provider API</td></tr>
+  <tr><td>Practitioner</td><td><code>Hl7.Fhir.Model.Practitioner</code></td><td>Practitioner API</td></tr>
+  <tr><td>Claim</td><td><code>Hl7.Fhir.Model.Claim</code></td><td>Claim / Preauth API</td></tr>
+  <tr><td>ExplanationOfBenefit</td><td><code>Hl7.Fhir.Model.ExplanationOfBenefit</code></td><td>EOB API</td></tr>
+  <tr><td>Coverage</td><td><code>Hl7.Fhir.Model.Coverage</code></td><td>Coverage API</td></tr>
+  <tr><td>Encounter</td><td><code>Hl7.Fhir.Model.Encounter</code></td><td>Encounter API</td></tr>
+  <tr><td>Location</td><td><code>Hl7.Fhir.Model.Location</code></td><td>Location API</td></tr>
+  <tr><td>Consent</td><td><code>Hl7.Fhir.Model.Consent</code></td><td>Consent API</td></tr>
+  <tr><td>Condition</td><td><code>Hl7.Fhir.Model.Condition</code></td><td>Clinical Data API</td></tr>
+  <tr><td>AllergyIntolerance</td><td><code>Hl7.Fhir.Model.AllergyIntolerance</code></td><td>Clinical Data API</td></tr>
+  <tr><td>MedicationRequest</td><td><code>Hl7.Fhir.Model.MedicationRequest</code></td><td>Clinical Data API</td></tr>
+  <tr><td>Immunization</td><td><code>Hl7.Fhir.Model.Immunization</code></td><td>Clinical Data API</td></tr>
+  <tr><td>Procedure</td><td><code>Hl7.Fhir.Model.Procedure</code></td><td>Clinical Data API</td></tr>
+  <tr><td>DiagnosticReport</td><td><code>Hl7.Fhir.Model.DiagnosticReport</code></td><td>Clinical Data API</td></tr>
+  <tr><td>Bundle</td><td><code>Hl7.Fhir.Model.Bundle</code></td><td>All search results</td></tr>
+  <tr><td>OperationOutcome</td><td><code>Hl7.Fhir.Model.OperationOutcome</code></td><td>All error responses</td></tr>
+</table>
+
+<h3 id="design-properties">Correctness Properties</h3>
+
+<div class="property-card"><h4>Property 1: Content Negotiation</h4><p><em>For any</em> HTTP request, if <code>Accept</code> is <code>application/fhir+json</code> or absent → response is <code>application/fhir+json</code>; if <code>application/fhir+xml</code> → response is <code>application/fhir+xml</code>; otherwise → 415 with OperationOutcome.</p><p class="validates">Validates: Req 1.2, 1.3, 1.4</p></div>
+
+<div class="property-card"><h4>Property 2: Unknown Route Returns 404 OperationOutcome</h4><p><em>For any</em> unregistered path → 404 with valid OperationOutcome.</p><p class="validates">Validates: Req 1.6, 12.1</p></div>
+
+<div class="property-card"><h4>Property 3: Resource ID Uniqueness on Creation</h4><p><em>For any</em> N creation requests of the same type, all N returned <code>id</code> values shall be distinct.</p><p class="validates">Validates: Req 1.7</p></div>
+
+<div class="property-card"><h4>Property 4: Authentication Failure Returns 401</h4><p><em>For any</em> request with missing or invalid bearer token → 401 with OperationOutcome.</p><p class="validates">Validates: Req 2.1, 2.2</p></div>
+
+<div class="property-card"><h4>Property 5: Scope Violation Returns 403</h4><p><em>For any</em> request where token scopes don't include the required scope → 403 with OperationOutcome.</p><p class="validates">Validates: Req 2.3</p></div>
+
+<div class="property-card"><h4>Property 6: Access Token Expiry Bound</h4><p><em>For any</em> successful auth response, <code>expires_in</code> ≤ 3600.</p><p class="validates">Validates: Req 2.6</p></div>
+
+<div class="property-card"><h4>Property 7: Search Returns Bundle of Type Searchset</h4><p><em>For any</em> search interaction, response is a Bundle with <code>type=searchset</code>, including zero results.</p><p class="validates">Validates: Req 3.5, 10.5, 20.25, 23.10</p></div>
+
+<div class="property-card"><h4>Property 8: Profile Validation Rejects Invalid Resources with 422</h4><p><em>For any</em> create/update failing profile validation → 422 with OperationOutcome listing all errors.</p><p class="validates">Validates: Req 3.6, 3.7, 4.6, 4.7, 5.5–5.7, 6.6, 6.7, 7.4, 7.5, 13.6, 13.7, 15.6, 15.7, 16.6, 16.7, 18.8, 18.9, 19.6, 19.7, 20.3–20.24</p></div>
+
+<div class="property-card"><h4>Property 9: Not-Found Returns 404 OperationOutcome</h4><p><em>For any</em> read with non-existent id → 404 with OperationOutcome.</p><p class="validates">Validates: Req 3.8, 13.8, 15.8, 16.8, 19.8, 20.26, 23.11</p></div>
+
+<div class="property-card"><h4>Property 10: Patient Identifier with System URI</h4><p><em>For any</em> Patient response, at least one <code>identifier</code> with non-empty <code>system</code> URI.</p><p class="validates">Validates: Req 3.9</p></div>
+
+<div class="property-card"><h4>Property 11: NPI Identifier Present When Known</h4><p><em>For any</em> Organization/Practitioner with stored NPI, include <code>identifier</code> with system <code>http://hl7.org/fhir/sid/us-npi</code>.</p><p class="validates">Validates: Req 4.8, 5.8</p></div>
+
+<div class="property-card"><h4>Property 12: Resource Creation Returns 201 with Location</h4><p><em>For any</em> successful create → 201 with <code>Location</code> header containing <code>{base}/{ResourceType}/{id}</code>.</p><p class="validates">Validates: Req 6.8</p></div>
+
+<div class="property-card"><h4>Property 13: Claim Status Values Constrained</h4><p><em>For any</em> Claim, <code>status</code> ∈ {<code>active</code>, <code>cancelled</code>, <code>draft</code>, <code>entered-in-error</code>}.</p><p class="validates">Validates: Req 6.9</p></div>
+
+<div class="property-card"><h4>Property 14: EOB Bundle Includes Pagination Links</h4><p><em>For any</em> EOB search exceeding page size, Bundle includes <code>self</code> and <code>next</code> links.</p><p class="validates">Validates: Req 7.3, 10.2</p></div>
+
+<div class="property-card"><h4>Property 15: EOB Adjudication Elements Present</h4><p><em>For any</em> EOB, each <code>item</code> has <code>adjudication</code> covering allowed, paid, and patient responsibility.</p><p class="validates">Validates: Req 7.6</p></div>
+
+<div class="property-card"><h4>Property 16: Member Match Returns Patient or 422</h4><p><em>For any</em> <code>$member-match</code> request → matched Patient (200) or OperationOutcome (422).</p><p class="validates">Validates: Req 8.3</p></div>
+
+<div class="property-card"><h4>Property 17: $everything Bundle Contains Required Types</h4><p><em>For any</em> <code>$everything</code> response, Bundle contains Patient, Coverage, and EOB (when data exists).</p><p class="validates">Validates: Req 8.5</p></div>
+
+<div class="property-card"><h4>Property 18: $everything _since Filters by LastUpdated</h4><p><em>For any</em> <code>$everything</code> with <code>_since=T</code>, all resources have <code>meta.lastUpdated ≥ T</code>.</p><p class="validates">Validates: Req 8.6</p></div>
+
+<div class="property-card"><h4>Property 19: Preauth ClaimResponse Outcome Is Valid</h4><p><em>For any</em> <code>$submit</code> response, <code>outcome</code> ∈ {<code>queued</code>, <code>complete</code>, <code>error</code>}.</p><p class="validates">Validates: Req 9.3</p></div>
+
+<div class="property-card"><h4>Property 20: Preauth Decision Updates Disposition</h4><p><em>For any</em> decided ClaimResponse, <code>disposition</code> is non-empty.</p><p class="validates">Validates: Req 9.5</p></div>
+
+<div class="property-card"><h4>Property 21: _count Parameter Respected</h4><p><em>For any</em> search with <code>_count=N</code> (1 ≤ N ≤ 100), Bundle entries ≤ N.</p><p class="validates">Validates: Req 10.1</p></div>
+
+<div class="property-card"><h4>Property 22: _count Capped at 100</h4><p><em>For any</em> search with <code>_count &gt; 100</code>, Bundle entries ≤ 100.</p><p class="validates">Validates: Req 10.1</p></div>
+
+<div class="property-card"><h4>Property 23: _sort Orders Results</h4><p><em>For any</em> search with <code>_sort=F</code>, resources ordered by field F.</p><p class="validates">Validates: Req 10.3</p></div>
+
+<div class="property-card"><h4>Property 24: _include Adds Referenced Resources</h4><p><em>For any</em> search with <code>_include</code>, Bundle contains referenced resources as additional entries.</p><p class="validates">Validates: Req 10.4</p></div>
+
+<div class="property-card"><h4>Property 25: AuditEvent Created for Every PHI Interaction</h4><p><em>For any</em> read/search/create/update on Patient, EOB, Claim, ClaimResponse → AuditEvent persisted with client identity, resource type, id, action, timestamp.</p><p class="validates">Validates: Req 11.1, 11.2</p></div>
+
+<div class="property-card"><h4>Property 26: AuditEvent Query Scoped to Authorized Patients</h4><p><em>For any</em> <code>GET /AuditEvent</code>, only events for client's authorized patient population returned.</p><p class="validates">Validates: Req 11.4</p></div>
+
+<div class="property-card"><h4>Property 27: All Error Responses Contain OperationOutcome</h4><p><em>For any</em> 4xx/5xx response, body is valid OperationOutcome with at least one <code>issue</code>.</p><p class="validates">Validates: Req 12.1</p></div>
+
+<div class="property-card"><h4>Property 28: Internal Errors Don't Expose Stack Traces</h4><p><em>For any</em> unhandled exception → 500, OperationOutcome <code>diagnostics</code> contains no stack trace or file path.</p><p class="validates">Validates: Req 12.3</p></div>
+
+<div class="property-card"><h4>Property 29: ResourceType Mismatch Returns 400</h4><p><em>For any</em> create/update where <code>resourceType</code> doesn't match endpoint → 400 with OperationOutcome.</p><p class="validates">Validates: Req 12.4</p></div>
+
+<div class="property-card"><h4>Property 30: Location managingOrganization Present</h4><p><em>For any</em> Location with stored managing org → <code>managingOrganization</code> reference present.</p><p class="validates">Validates: Req 13.9</p></div>
+
+<div class="property-card"><h4>Property 31: Year-End Report Format Dispatch</h4><p><em>For any</em> report request: <code>format=fhir-bundle</code> → Bundle type <code>document</code>; <code>format=json</code> or absent → JSON with <code>totalClaimsCount</code>, <code>totalPaidAmount</code>, etc.</p><p class="validates">Validates: Req 14.2, 14.3, 14.4</p></div>
+
+<div class="property-card"><h4>Property 32: RelatedPerson Contains Patient Reference and Relationship</h4><p><em>For any</em> RelatedPerson → <code>patient</code> reference and at least one <code>relationship</code> coding.</p><p class="validates">Validates: Req 15.9</p></div>
+
+<div class="property-card"><h4>Property 33: Encounter Contains Subject and Status</h4><p><em>For any</em> Encounter → <code>subject</code> reference to Patient and non-null <code>status</code>.</p><p class="validates">Validates: Req 16.9</p></div>
+
+<div class="property-card"><h4>Property 34: Terminology Operations Return Correct Structure</h4><p><em>For any</em> valid <code>$lookup</code> → Parameters with <code>display</code>, <code>definition</code>, <code>designation</code>; <code>$validate-code</code> → boolean <code>result</code>; <code>$expand</code> → ValueSet with <code>expansion</code>.</p><p class="validates">Validates: Req 17.5, 17.6, 17.7</p></div>
+
+<div class="property-card"><h4>Property 35: Provider Directory Proximity Search</h4><p><em>For any</em> Location search with <code>near</code> → results ordered by ascending distance, all within specified range.</p><p class="validates">Validates: Req 18.7</p></div>
+
+<div class="property-card"><h4>Property 36–41: Bulk Export Properties</h4>
+<p><strong>36:</strong> <code>_since=T</code> → all exported resources have <code>lastUpdated ≥ T</code>. <strong>37:</strong> <code>_type=X</code> → all resources have <code>resourceType ∈ X</code>. <strong>38:</strong> NDJSON validity — each line is valid JSON, no blank lines. <strong>39:</strong> Valid <code>$export</code> → 202 with <code>Content-Location</code>. <strong>40:</strong> Completed job → 200 with <code>transactionTime</code>, <code>request</code>, <code>requiresAccessToken</code>, <code>output</code>. <strong>41:</strong> Unsupported <code>_type</code> → 400 with OperationOutcome.</p>
+<p class="validates">Validates: Req 21.4, 21.5, 21.7, 21.8, 21.10, 21.12</p></div>
+
+<div class="property-card"><h4>Property 42–43: SMART Configuration</h4>
+<p><strong>42:</strong> <code>/.well-known/smart-configuration</code> contains all required fields: <code>authorization_endpoint</code>, <code>token_endpoint</code>, <code>scopes_supported</code>, <code>code_challenge_methods_supported</code> (with <code>S256</code>), <code>grant_types_supported</code>, <code>capabilities</code>. <strong>43:</strong> Response <code>Content-Type</code> is <code>application/json</code>.</p>
+<p class="validates">Validates: Req 22.2–22.6, 22.9, 22.10</p></div>
+
+<div class="property-card"><h4>Property 44–46: Consent Properties</h4>
+<p><strong>44:</strong> Missing <code>scope</code>, <code>patient</code>, or <code>period</code> → 422 with OperationOutcome. <strong>45:</strong> Consent <code>status</code> ∈ {<code>active</code>, <code>inactive</code>, <code>rejected</code>, <code>entered-in-error</code>}. <strong>46:</strong> Payer-to-Payer exchange gated by active Consent — no consent → 403.</p>
+<p class="validates">Validates: Req 23.5–23.9</p></div>
+
+<div class="property-card"><h4>Property 47–49: Multi-Tenant Properties</h4>
+<p><strong>47:</strong> Cross-tenant data isolation — tenant A's resources never visible to tenant B. <strong>48:</strong> Unresolvable tenant → 401 with OperationOutcome. <strong>49:</strong> Tenant provisioning returns entity with non-empty <code>id</code> and <code>isActive=true</code>.</p>
+<p class="validates">Validates: Req 24.1, 24.2, 24.4, 24.6, 24.8, 24.9</p></div>
+
+<div class="property-card"><h4>Property 50–52: Admin Properties</h4>
+<p><strong>50:</strong> Deactivated tenant → all requests return 403. <strong>51:</strong> Rate limit exceeded → 429 with OperationOutcome. <strong>52:</strong> Revoked API key → 401 with OperationOutcome.</p>
+<p class="validates">Validates: Req 25.4, 25.7, 25.9</p></div>
+
+<div class="property-card"><h4>Property 53–55: Compliance Report Properties</h4>
+<p><strong>53:</strong> Report contains <code>uptimePercentage</code>, <code>endpointMetrics</code>, <code>totalRequests</code>, <code>overallErrorRate</code>. <strong>54:</strong> Format dispatch: <code>pdf</code> → <code>application/pdf</code>; <code>csv</code> → <code>text/csv</code>; default → <code>application/json</code>. <strong>55:</strong> Non-admin/compliance-officer → 403.</p>
+<p class="validates">Validates: Req 26.2–26.6, 26.9</p></div>

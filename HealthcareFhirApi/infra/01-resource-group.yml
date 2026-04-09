@@ -1,0 +1,8 @@
+# Step 1: Create Resource Group
+# Run: az deployment sub create --location eastus --template-file 01-resource-group.yml
+
+name: Create Resource Group
+description: Creates the Azure resource group for the FHIR API platform
+
+commands:
+  - az group create --name fhir-api-rg --location eastus --tags environment=production project=fhir-api

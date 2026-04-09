@@ -1,0 +1,42 @@
+# Step 4: Create App Service Plan and Web App
+# Run each command in order
+
+name: Azure App Service Setup
+description: Creates App Service Plan and Web App for the FHIR API
+
+commands:
+  # Create App Service Plan (B2 tier for production)
+  - az appservice plan create
+      --resource-group fhir-api-rg
+      --name fhirapi-plan
+      --location eastus
+      --sku B2
+      --is-linux false
+
+  # Create Web App (.NET 10)
+  - az webapp create
+      --resource-group fhir-api-rg
+      --plan fhirapi-plan
+      --name fhirapi-prod-api
+      --runtime "dotnet:10"
+
+  # Enable HTTPS only
+  - az webapp update
+      --resource-group fhir-api-rg
+      --name fhirapi-prod-api
+      --https-only true
+
+  # Enable Always On
+  - az webapp config set
+      --resource-group fhir-api-rg
+      --name fhirapi-prod-api
+      --always-on true
+      --ftps-state Disabled
+      --http20-enabled true
+      --min-tls-version 1.2
+
+  # Set health check path
+  - az webapp config set
+      --resource-group fhir-api-rg
+      --name fhirapi-prod-api
+      --generic-configurations "{\"healthCheckPath\":\"/health\"}"

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us - Infoworks Solutions</title>
+<style>
+:root {
+  --primary-blue: #0066CC;
+  --trust-green: #00A86B;
+  --navy: #1a2332;
+  --light-gray: #F8F9FA;
+  --border-gray: #E5E7EB;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.6;
+  background: white;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Navigation */
+nav {
+  background: white;
+  border-bottom: 1px solid var(--border-gray);
+  padding: 20px 0;
+}
+
+nav .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary-blue);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--primary-blue);
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-primary:hover {
+  background: #0052A3;
+}
+
+/* Hero */
+.hero {
+  padding: 80px 0 60px;
+  background: linear-gradient(180deg, #F0F7FF 0%, white 100%);
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 24px;
+}
+
+.hero p {
+  font-size: 20px;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Contact Section */
+.contact {
+  padding: 80px 0;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.contact-card {
+  background: white;
+  border: 2px solid var(--border-gray);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+}
+
+.contact-icon {
+  width: 64px;
+  height: 64px;
+  background: #F0F7FF;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 32px;
+}
+
+.contact-card h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+
+.contact-card p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.contact-link {
+  display: inline-block;
+  background: var(--primary-blue);
+  color: white;
+  padding: 12px 28px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.contact-link:hover {
+  background: #0052A3;
+}
+
+.email-display {
+  font-size: 16px;
+  color: var(--primary-blue);
+  font-weight: 500;
+  margin-top: 12px;
+  word-break: break-all;
+}
+
+/* Info Section */
+.info {
+  padding: 80px 0;
+  background: var(--light-gray);
+}
+
+.info h2 {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 48px;
+  color: var(--navy);
+}
+
+.info-content {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  border: 1px solid var(--border-gray);
+}
+
+.info-item {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.info-item p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Footer */
+footer {
+  background: var(--navy);
+  color: white;
+  padding: 60px 0 30px;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.footer-section ul {
+  list-style: none;
+}
+
+.footer-section li {
+  margin-bottom: 12px;
+}
+
+.footer-section a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.footer-section a:hover {
+  color: white;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 30px;
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+  
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="container">
+    <a href="infoworks-homepage.html" class="logo"><img src="cropped-Logo-Design-35-180x180.png" alt="Infoworks Solutions" style="height:60px;vertical-align:middle;margin-right:10px">Infoworks Solutions</a>
+    <div class="nav-links">
+      <a href="infoworks-homepage.html#products">Products</a>
+      <a href="infoworks-homepage.html#use-cases">Use Cases</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="btn-primary">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>Let's Talk About Your Needs</h1>
+    <p>Whether you need CMS compliance, member engagement tools, or AI-powered dental analysis—we're here to help</p>
+  </div>
+</section>
+
+<!-- Contact Cards -->
+<section class="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <!-- Demo Request -->
+      <div class="contact-card">
+        <div class="contact-icon">🎯</div>
+        <h3>Request a Demo</h3>
+        <p>See our FHIR APIs, dental image analysis, and SMS campaign platform in action. Schedule a personalized demo with our team.</p>
+        <a href="mailto:contact@infoworkssolutions.com?subject=Demo Request&body=Hi, I'd like to schedule a demo of your platform.%0D%0A%0D%0ACompany:%0D%0ARole:%0D%0ATimezone:%0D%0A%0D%0AProducts interested in:%0D%0A☐ FHIR APIs%0D%0A☐ Dental Image Analysis%0D%0A☐ Member SMS Campaigns" class="contact-link">Schedule Demo</a>
+        <div class="email-display">contact@infoworkssolutions.com</div>
+      </div>
+      
+      <!-- Technical Inquiry -->
+      <div class="contact-card">
+        <div class="contact-icon">⚙️</div>
+        <h3>Technical Inquiry</h3>
+        <p>Questions about API integration, data security, FHIR compliance, or technical specifications? Connect with our engineering team.</p>
+        <a href="mailto:technical@infoworkssolutions.com?subject=Technical Inquiry&body=Hi, I have a technical question about:%0D%0A%0D%0AProduct:%0D%0AQuestion:%0D%0A%0D%0ACompany:%0D%0ARole:" class="contact-link">Contact Engineering</a>
+        <div class="email-display">technical@infoworkssolutions.com</div>
+      </div>
+      
+      <!-- Partnership -->
+      <div class="contact-card">
+        <div class="contact-icon">🤝</div>
+        <h3>Partnership Opportunities</h3>
+        <p>Interested in strategic partnerships, reseller agreements, or white-label solutions? Let's explore how we can work together.</p>
+        <a href="mailto:contact@infoworkssolutions.com?subject=Partnership Inquiry&body=Hi, I'm interested in discussing a partnership opportunity.%0D%0A%0D%0ACompany:%0D%0APartnership type:%0D%0ADetails:" class="contact-link">Discuss Partnership</a>
+        <div class="email-display">contact@infoworkssolutions.com</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Additional Info -->
+<section class="info">
+  <div class="container">
+    <h2>What to Expect</h2>
+    <div class="info-content">
+      <div class="info-item">
+        <h3>Response Time</h3>
+        <p>We respond to all demo requests and technical inquiries within 24 business hours. For urgent technical questions, please note "URGENT" in your subject line.</p>
+      </div>
+      
+      <div class="info-item">
+        <h3>Demo Format</h3>
+        <p>Demos are conducted via video call and typically last 30-45 minutes. We'll walk through the products you're interested in and answer all your questions. No commitment required.</p>
+      </div>
+      
+      <div class="info-item">
+        <h3>Technical Documentation</h3>
+        <p>API documentation, integration guides, and technical specifications are available upon request. We'll share relevant materials based on your implementation needs.</p>
+      </div>
+      
+      <div class="info-item">
+        <h3>Pricing & Contracts</h3>
+        <p>Pricing is customized based on your member volume, API usage, and deployment requirements. We'll provide a detailed quote after understanding your specific needs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Products</h4>
+        <ul>
+          <li><a href="infoworks-homepage.html#products">AI Dental Analysis</a></li>
+          <li><a href="infoworks-homepage.html#products">FHIR APIs</a></li>
+          <li><a href="infoworks-homepage.html#products">SMS Campaigns</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="infoworks-homepage.html#use-cases">Use Cases</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#privacy">Privacy Policy</a></li>
+          <li><a href="#terms">Terms of Service</a></li>
+          <li><a href="#hipaa">HIPAA Compliance</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:contact@infoworkssolutions.com">contact@infoworkssolutions.com</a></li>
+          <li><a href="mailto:technical@infoworkssolutions.com">technical@infoworkssolutions.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Infoworks Solutions. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

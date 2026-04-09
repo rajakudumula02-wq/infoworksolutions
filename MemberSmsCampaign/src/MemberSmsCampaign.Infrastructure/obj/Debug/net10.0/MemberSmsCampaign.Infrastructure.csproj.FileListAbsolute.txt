@@ -1,0 +1,15 @@
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\bin\Debug\net10.0\MemberSmsCampaign.Infrastructure.deps.json
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\bin\Debug\net10.0\MemberSmsCampaign.Infrastructure.dll
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\bin\Debug\net10.0\MemberSmsCampaign.Infrastructure.pdb
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\bin\Debug\net10.0\MemberSmsCampaign.Core.dll
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\bin\Debug\net10.0\MemberSmsCampaign.Core.pdb
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\MemberSmsCampaign.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\MemberSmsCampaign.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\MemberSmsCampaign.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\MemberSmsCampaign.Infrastructure.AssemblyInfo.cs
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\MemberSmsCampaign.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\MemberSm.CAEF99B8.Up2Date
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\MemberSmsCampaign.Infrastructure.dll
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\refint\MemberSmsCampaign.Infrastructure.dll
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\MemberSmsCampaign.Infrastructure.pdb
+C:\Users\Reddy\AI\MemberSmsCampaign\src\MemberSmsCampaign.Infrastructure\obj\Debug\net10.0\ref\MemberSmsCampaign.Infrastructure.dll

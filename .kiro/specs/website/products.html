@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products - Infoworks Solutions</title>
+<style>
+:root {
+  --primary-blue: #0066CC;
+  --trust-green: #00A86B;
+  --navy: #1a2332;
+  --light-gray: #F8F9FA;
+  --border-gray: #E5E7EB;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.6;
+  background: white;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Navigation */
+nav {
+  background: white;
+  border-bottom: 1px solid var(--border-gray);
+  padding: 20px 0;
+}
+
+nav .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary-blue);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--primary-blue);
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-primary:hover {
+  background: #0052A3;
+}
+
+/* Hero */
+.hero {
+  padding: 80px 0 60px;
+  background: linear-gradient(180deg, #F0F7FF 0%, white 100%);
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 24px;
+}
+
+.hero p {
+  font-size: 20px;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Product Section */
+.product-detail {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.product-detail:last-of-type {
+  border-bottom: none;
+}
+
+.product-detail:nth-child(even) {
+  background: var(--light-gray);
+}
+
+.product-header {
+  max-width: 900px;
+  margin: 0 auto 60px;
+  text-align: center;
+}
+
+.product-icon-large {
+  width: 80px;
+  height: 80px;
+  background: #F0F7FF;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 40px;
+}
+
+.product-header h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+
+.product-tagline {
+  font-size: 20px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.product-highlight {
+  background: #F0F7FF;
+  border-left: 4px solid var(--primary-blue);
+  padding: 20px 24px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 40px;
+}
+
+.product-highlight strong {
+  color: var(--primary-blue);
+  font-size: 18px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  max-width: 1000px;
+  margin: 0 auto 40px;
+}
+
+.feature-card {
+  background: white;
+  border: 1px solid var(--border-gray);
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.feature-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.feature-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.feature-card li {
+  padding: 8px 0;
+  padding-left: 28px;
+  position: relative;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.feature-card li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--trust-green);
+  font-weight: 700;
+}
+
+.tech-specs {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+  border: 1px solid var(--border-gray);
+}
+
+.tech-specs h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 24px;
+}
+
+.spec-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.spec-item {
+  padding: 16px;
+  background: var(--light-gray);
+  border-radius: 8px;
+}
+
+.spec-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.spec-value {
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* CTA */
+.cta {
+  padding: 80px 0;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, #0052A3 100%);
+  color: white;
+  text-align: center;
+}
+
+.cta h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.cta p {
+  font-size: 18px;
+  margin-bottom: 32px;
+  opacity: 0.9;
+}
+
+.btn-white {
+  background: white;
+  color: var(--primary-blue);
+  padding: 14px 32px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  display: inline-block;
+}
+
+.btn-white:hover {
+  background: #f5f5f5;
+}
+
+/* Footer */
+footer {
+  background: var(--navy);
+  color: white;
+  padding: 60px 0 30px;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.footer-section ul {
+  list-style: none;
+}
+
+.footer-section li {
+  margin-bottom: 12px;
+}
+
+.footer-section a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.footer-section a:hover {
+  color: white;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 30px;
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="container">
+    <a href="infoworks-homepage.html" class="logo"><img src="cropped-Logo-Design-35-180x180.png" alt="Infoworks Solutions" style="height:60px;vertical-align:middle;margin-right:10px">Infoworks Solutions</a>
+    <div class="nav-links">
+      <a href="products.html">Products</a>
+      <a href="use-cases.html">Use Cases</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="btn-primary">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>Our Product Suite</h1>
+    <p>Complete API infrastructure for dental insurance payers—from CMS compliance to member engagement</p>
+  </div>
+</section>
+
+<!-- Product 1: Dental AI -->
+<section class="product-detail">
+  <div class="container">
+    <div class="product-header">
+      <div class="product-icon-large">🦷</div>
+      <h2>AI Dental Image Analysis</h2>
+      <p class="product-tagline">Instant oral health scores from member photos—analyze and return results in 3 seconds</p>
+      <div class="product-highlight">
+        <strong>3-second response time</strong> — Fast enough for real-time member engagement in mobile apps and teledentistry platforms
+      </div>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Health Indicators</h3>
+        <p>Four comprehensive oral health scores</p>
+        <ul>
+          <li>Cavity risk (0-100 score)</li>
+          <li>Gum health evaluation</li>
+          <li>Plaque level detection</li>
+          <li>Overall oral health score</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Quality Assurance</h3>
+        <p>Built-in validation and confidence metrics</p>
+        <ul>
+          <li>Confidence levels for every indicator</li>
+          <li>Automatic quality validation</li>
+          <li>Minimum resolution enforcement (300x300)</li>
+          <li>Blur and exposure detection</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>File Support</h3>
+        <p>Wide format compatibility for flexibility</p>
+        <ul>
+          <li>JPEG, PNG, DICOM formats</li>
+          <li>Up to 20MB file size</li>
+          <li>X-rays, intraoral photos, panoramic scans</li>
+          <li>Mobile and desktop upload support</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="tech-specs">
+      <h3>Technical Specifications</h3>
+      <div class="spec-list">
+        <div class="spec-item">
+          <div class="spec-label">Response Time</div>
+          <div class="spec-value">< 3 seconds</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">API Format</div>
+          <div class="spec-value">RESTful JSON</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Authentication</div>
+          <div class="spec-value">OAuth 2.0</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Encryption</div>
+          <div class="spec-value">TLS 1.2+</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Max File Size</div>
+          <div class="spec-value">20 MB</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Analysis History</div>
+          <div class="spec-value">Paginated retrieval</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Product 2: FHIR APIs -->
+<section class="product-detail">
+  <div class="container">
+    <div class="product-header">
+      <div class="product-icon-large">🏥</div>
+      <h2>CMS-Compliant FHIR APIs</h2>
+      <p class="product-tagline">Multi-tenant HL7 FHIR R4 platform for payers to meet federal interoperability mandates</p>
+      <div class="product-highlight">
+        <strong>Compliance-ready</strong> — Deploy CMS-9115-F and CMS-0057-F APIs in weeks, not months
+      </div>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Core Resource Types</h3>
+        <p>26 FHIR R4 resources supported</p>
+        <ul>
+          <li>Patient, Practitioner, Organization</li>
+          <li>Claim, ClaimResponse, ExplanationOfBenefit</li>
+          <li>Coverage, Encounter, Location</li>
+          <li>RelatedPerson, PractitionerRole</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>CMS Compliance</h3>
+        <p>Pre-built for federal mandates</p>
+        <ul>
+          <li>Patient Access API (CMS-9115-F)</li>
+          <li>Payer-to-Payer exchange (CMS-0057-F)</li>
+          <li>US Core profile validation</li>
+          <li>CARIN Blue Button for EOB</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Security & Auth</h3>
+        <p>Enterprise-grade access control</p>
+        <ul>
+          <li>SMART on FHIR authorization</li>
+          <li>OAuth 2.0 with PKCE</li>
+          <li>Scoped access tokens</li>
+          <li>Role-based permissions</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Multi-Tenant</h3>
+        <p>Isolated data per payer</p>
+        <ul>
+          <li>Dedicated tenant storage</li>
+          <li>Tenant-specific configuration</li>
+          <li>Independent compliance reporting</li>
+          <li>Custom branding support</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Search & Pagination</h3>
+        <p>Flexible data retrieval</p>
+        <ul>
+          <li>Advanced search parameters</li>
+          <li>Sort, filter, include, revinclude</li>
+          <li>Cursor-based pagination</li>
+          <li>Bulk data export (FHIR IG)</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Operations</h3>
+        <p>Extended FHIR functionality</p>
+        <ul>
+          <li>$member-match for payer-to-payer</li>
+          <li>$everything for patient data bundles</li>
+          <li>$submit for preauthorization</li>
+          <li>$inquire for status tracking</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="tech-specs">
+      <h3>Technical Specifications</h3>
+      <div class="spec-list">
+        <div class="spec-item">
+          <div class="spec-label">FHIR Version</div>
+          <div class="spec-value">R4 (4.0.1)</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Content Types</div>
+          <div class="spec-value">JSON, XML</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Auth Protocol</div>
+          <div class="spec-value">SMART on FHIR v2.0</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Audit Logging</div>
+          <div class="spec-value">6+ year retention</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Encryption</div>
+          <div class="spec-value">At rest & in transit</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Availability</div>
+          <div class="spec-value">99.9% SLA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Product 3: SMS Campaigns -->
+<section class="product-detail">
+  <div class="container">
+    <div class="product-header">
+      <div class="product-icon-large">💬</div>
+      <h2>Member SMS Campaign Platform</h2>
+      <p class="product-tagline">Automate targeted engagement campaigns using coverage data and eligibility verification</p>
+      <div class="product-highlight">
+        <strong>Automated engagement</strong> — Schedule campaigns, verify eligibility, track delivery status
+      </div>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Campaign Types</h3>
+        <p>Four pre-built campaign templates</p>
+        <ul>
+          <li>Welcome campaigns for new enrollees</li>
+          <li>Referral campaigns for member growth</li>
+          <li>Utilization campaigns for preventive care</li>
+          <li>Holiday campaigns with seasonal messaging</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Targeting & Eligibility</h3>
+        <p>Smart member segmentation</p>
+        <ul>
+          <li>Active coverage verification</li>
+          <li>Coverage start date filtering</li>
+          <li>Member segment creation</li>
+          <li>Automatic exclusion of ineligible members</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Campaign Management</h3>
+        <p>Full lifecycle control</p>
+        <ul>
+          <li>Draft, schedule, execute workflows</li>
+          <li>Bulk and single message support</li>
+          <li>Message template library</li>
+          <li>Cancel or reschedule campaigns</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Delivery & Reporting</h3>
+        <p>Track campaign performance</p>
+        <ul>
+          <li>Real-time delivery status</li>
+          <li>Sent, failed, skipped metrics</li>
+          <li>Per-member delivery breakdown</li>
+          <li>Campaign run history</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="tech-specs">
+      <h3>Technical Specifications</h3>
+      <div class="spec-list">
+        <div class="spec-item">
+          <div class="spec-label">SMS Provider</div>
+          <div class="spec-value">Azure Communication Services</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Message Length</div>
+          <div class="spec-value">160 characters max</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Retry Logic</div>
+          <div class="spec-value">3 attempts with backoff</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Pagination</div>
+          <div class="spec-value">50-100 results per page</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Database</div>
+          <div class="spec-value">SQL Server</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">API Format</div>
+          <div class="spec-value">RESTful JSON</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="container">
+    <h2>Ready to See Our Products in Action?</h2>
+    <p>Schedule a demo to explore how our APIs can meet your payer needs</p>
+    <a href="contact.html" class="btn-white">Request a Demo</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Products</h4>
+        <ul>
+          <li><a href="products.html">AI Dental Analysis</a></li>
+          <li><a href="products.html">FHIR APIs</a></li>
+          <li><a href="products.html">SMS Campaigns</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="use-cases.html">Use Cases</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#privacy">Privacy Policy</a></li>
+          <li><a href="#terms">Terms of Service</a></li>
+          <li><a href="#hipaa">HIPAA Compliance</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:contact@infoworkssolutions.com">contact@infoworkssolutions.com</a></li>
+          <li><a href="mailto:technical@infoworkssolutions.com">technical@infoworkssolutions.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Infoworks Solutions. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

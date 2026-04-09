@@ -1,0 +1,236 @@
+{
+  "cards": [
+    {
+      "uuid": "card-1-mammography",
+      "summary": "Prior authorization REQUIRED for Contrast enhanced spectral mammography (Procedure)",
+      "detail": "**Member:** Amy V. Baxter (ID: 123, MRN: 1032702)\n**Coverage:** COV1 — PPO, Acme Health Plan (Member #888009335)\n**Provider:** Dr. Ronald Bone (NPI: 9941339100), Acme Clinic\n**Office:** Holy Family Hospital (ID: hospital)\n**Encounter:** 987 — Office Visit (AMB)\n**Procedure:** SNOMED 726551006 — Contrast enhanced spectral mammography\n**Billing Options:** CPT 77061, 77062, 77065, 77066\n**Authored:** 2019-02-15\n**Requested By:** Dr. Jones (PractitionerRole/ABC)",
+      "indicator": "warning",
+      "source": {
+        "label": "Coverage Requirements Discovery",
+        "url": "http://example.org/some-payer/fhir/crd",
+        "topic": {
+          "system": "http://hl7.org/fhir/us/davinci-crd/CodeSystem/cardType",
+          "code": "prior-auth",
+          "display": "Prior Authorization Required"
+        }
+      },
+      "suggestions": [
+        {
+          "label": "Submit prior authorization for mammography",
+          "uuid": "suggestion-1-preauth",
+          "actions": [
+            {
+              "type": "create",
+              "description": "Create prior authorization request",
+              "resource": {
+                "resourceType": "Claim",
+                "status": "active",
+                "type": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                      "code": "professional"
+                    }
+                  ]
+                },
+                "use": "preauthorization",
+                "patient": {
+                  "reference": "Patient/123"
+                },
+                "provider": {
+                  "reference": "PractitionerRole/ABC"
+                },
+                "priority": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/processpriority",
+                      "code": "normal"
+                    }
+                  ]
+                },
+                "insurance": [
+                  {
+                    "sequence": 1,
+                    "focal": true,
+                    "coverage": {
+                      "reference": "Coverage/COV1"
+                    }
+                  }
+                ],
+                "item": [
+                  {
+                    "sequence": 1,
+                    "productOrService": {
+                      "coding": [
+                        {
+                          "system": "http://snomed.info/sct",
+                          "code": "726551006",
+                          "display": "Contrast enhanced spectral mammography (Procedure)"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "links": [
+        {
+          "label": "View prior auth requirements",
+          "url": "http://example.org/some-payer/prior-auth/mammography",
+          "type": "absolute"
+        }
+      ]
+    },
+    {
+      "uuid": "card-2-oxygen",
+      "summary": "Prior authorization REQUIRED for Portable gaseous oxygen system, rental",
+      "detail": "**Member:** Amy V. Baxter (ID: 123, MRN: 1032702)\n**Coverage:** COV1 — PPO, Acme Health Plan (Member #888009335)\n**Provider:** Dr. Ronald Bone (NPI: 9941339100), Acme Clinic\n**Office:** Holy Family Hospital (ID: hospital)\n**Encounter:** 987 — Office Visit (AMB)\n**Procedure:** HCPCS E0431 — Portable gaseous oxygen system, rental\n**Authored:** 2019-02-15\n**Requested By:** Dr. Jones (PractitionerRole/ABC)",
+      "indicator": "warning",
+      "source": {
+        "label": "Coverage Requirements Discovery",
+        "url": "http://example.org/some-payer/fhir/crd",
+        "topic": {
+          "system": "http://hl7.org/fhir/us/davinci-crd/CodeSystem/cardType",
+          "code": "prior-auth",
+          "display": "Prior Authorization Required"
+        }
+      },
+      "suggestions": [
+        {
+          "label": "Submit prior authorization for oxygen equipment",
+          "uuid": "suggestion-2-preauth",
+          "actions": [
+            {
+              "type": "create",
+              "description": "Create prior authorization request",
+              "resource": {
+                "resourceType": "Claim",
+                "status": "active",
+                "type": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                      "code": "professional"
+                    }
+                  ]
+                },
+                "use": "preauthorization",
+                "patient": {
+                  "reference": "Patient/123"
+                },
+                "provider": {
+                  "reference": "PractitionerRole/ABC"
+                },
+                "priority": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/processpriority",
+                      "code": "normal"
+                    }
+                  ]
+                },
+                "insurance": [
+                  {
+                    "sequence": 1,
+                    "focal": true,
+                    "coverage": {
+                      "reference": "Coverage/COV1"
+                    }
+                  }
+                ],
+                "item": [
+                  {
+                    "sequence": 1,
+                    "productOrService": {
+                      "coding": [
+                        {
+                          "system": "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+                          "code": "E0431",
+                          "display": "Portable gaseous oxygen system, rental"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "supportingInfo": [
+                  {
+                    "sequence": 1,
+                    "category": {
+                      "coding": [
+                        {
+                          "system": "http://hl7.org/fhir/us/davinci-crd/CodeSystem/temp",
+                          "code": "clinical"
+                        }
+                      ]
+                    },
+                    "code": {
+                      "text": "Clinical documentation required: oxygen saturation levels, qualifying diagnosis"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "links": [
+        {
+          "label": "DME prior auth requirements",
+          "url": "http://example.org/some-payer/prior-auth/dme",
+          "type": "absolute"
+        },
+        {
+          "label": "Documentation requirements for E0431",
+          "url": "http://example.org/some-payer/docs/E0431",
+          "type": "absolute"
+        }
+      ]
+    }
+  ],
+  "systemActions": [],
+  "extracted": {
+    "memberId": "123",
+    "memberName": "Amy V. Baxter",
+    "memberMRN": "1032702",
+    "memberCoverageId": "COV1",
+    "coverageType": "PPO",
+    "coveragePayer": "Acme Health Plan",
+    "subscriberId": "888009335",
+    "providerId": "Practitioner/DEF",
+    "providerName": "Dr. Ronald Bone",
+    "providerNPI": "9941339100",
+    "organizationId": "Organization/GHI",
+    "organizationName": "Acme Clinic",
+    "officeId": "hospital",
+    "officeName": "Holy Family Hospital",
+    "encounterId": "987",
+    "encounterType": "Office Visit (AMB)",
+    "procedures": [
+      {
+        "serviceRequestId": "1357",
+        "procedureCode": "726551006",
+        "procedureSystem": "http://snomed.info/sct",
+        "procedureDisplay": "Contrast enhanced spectral mammography (Procedure)",
+        "billingCodes": ["77061", "77062", "77065", "77066"],
+        "toothNumbers": [],
+        "requiresPreauth": true,
+        "authoredOn": "2019-02-15",
+        "requester": "Dr. Jones"
+      },
+      {
+        "serviceRequestId": "2468",
+        "procedureCode": "E0431",
+        "procedureSystem": "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+        "procedureDisplay": "Portable gaseous oxygen system, rental",
+        "billingCodes": [],
+        "toothNumbers": [],
+        "requiresPreauth": true,
+        "authoredOn": "2019-02-15",
+        "requester": "Dr. Jones"
+      }
+    ]
+  }
+}

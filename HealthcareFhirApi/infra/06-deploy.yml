@@ -1,0 +1,34 @@
+# Step 6: Build and Deploy to App Service
+# Run from the HealthcareFhirApi directory
+
+name: Deploy API to App Service
+description: Builds, publishes, and deploys the FHIR API
+
+commands:
+  # Build and publish
+  - dotnet publish src/HealthcareFhirApi.Api/HealthcareFhirApi.Api.csproj
+      -c Release
+      -o ./publish
+
+  # Zip the publish output
+  # PowerShell:
+  - Compress-Archive -Path ./publish/* -DestinationPath ./publish.zip -Force
+  # Or bash:
+  # cd publish && zip -r ../publish.zip . && cd ..
+
+  # Deploy zip to App Service
+  - az webapp deploy
+      --resource-group fhir-api-rg
+      --name fhirapi-prod-api
+      --src-path ./publish.zip
+      --type zip
+
+  # Verify deployment
+  - az webapp show
+      --resource-group fhir-api-rg
+      --name fhirapi-prod-api
+      --query "{state:state, defaultHostName:defaultHostName}"
+
+  # Test the API
+  # curl https://fhirapi-prod-api.azurewebsites.net/metadata
+  # curl https://fhirapi-prod-api.azurewebsites.net/.well-known/smart-configuration

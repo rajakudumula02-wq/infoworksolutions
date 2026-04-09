@@ -1,0 +1,24 @@
+# Step 5: Configure App Service Settings
+# Replace placeholders with actual values from steps 2 and 3
+
+name: App Service Configuration
+description: Sets connection strings and app settings
+
+commands:
+  # Set connection strings
+  - az webapp config connection-string set
+      --resource-group fhir-api-rg
+      --name fhirapi-prod-api
+      --connection-string-type SQLAzure
+      --settings
+        FhirDb="Server=tcp:fhirapi-sql.database.windows.net,1433;Database=FhirDb;User ID=fhiradmin;Password=<YOUR_SQL_PASSWORD>;Encrypt=true;TrustServerCertificate=false;"
+
+  # Set app settings
+  - az webapp config appsettings set
+      --resource-group fhir-api-rg
+      --name fhirapi-prod-api
+      --settings
+        ConnectionStrings__Redis="<REDIS_HOST>:<REDIS_SSL_PORT>,password=<REDIS_KEY>,ssl=True,abortConnect=false"
+        SmartAuth__Authority="https://login.microsoftonline.com/common/v2.0"
+        SmartAuth__Audience="fhir-api"
+        ASPNETCORE_ENVIRONMENT="Production"

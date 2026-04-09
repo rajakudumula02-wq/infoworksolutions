@@ -1,0 +1,12 @@
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\HealthcareFhirApi.Core.csproj.AssemblyReference.cache
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\HealthcareFhirApi.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\HealthcareFhirApi.Core.AssemblyInfoInputs.cache
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\HealthcareFhirApi.Core.AssemblyInfo.cs
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\HealthcareFhirApi.Core.csproj.CoreCompileInputs.cache
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\bin\Debug\net10.0\HealthcareFhirApi.Core.deps.json
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\bin\Debug\net10.0\HealthcareFhirApi.Core.dll
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\bin\Debug\net10.0\HealthcareFhirApi.Core.pdb
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\HealthcareFhirApi.Core.dll
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\refint\HealthcareFhirApi.Core.dll
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\HealthcareFhirApi.Core.pdb
+C:\Users\Reddy\AI\HealthcareFhirApi\src\HealthcareFhirApi.Core\obj\Debug\net10.0\ref\HealthcareFhirApi.Core.dll

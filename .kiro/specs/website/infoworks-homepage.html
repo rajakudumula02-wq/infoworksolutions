@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infoworks Solutions - Healthcare APIs for Payers</title>
+<style>
+:root {
+  --primary-blue: #0066CC;
+  --trust-green: #00A86B;
+  --navy: #1a2332;
+  --light-gray: #F8F9FA;
+  --border-gray: #E5E7EB;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.6;
+  background: white;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Navigation */
+nav {
+  background: white;
+  border-bottom: 1px solid var(--border-gray);
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.95);
+}
+
+nav .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary-blue);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--primary-blue);
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-primary:hover {
+  background: #0052A3;
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--primary-blue);
+  padding: 10px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  border: 2px solid var(--primary-blue);
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-secondary:hover {
+  background: #F0F7FF;
+}
+
+/* Hero Section */
+.hero {
+  padding: 80px 0 100px;
+  background: linear-gradient(180deg, #F0F7FF 0%, white 100%);
+}
+
+.hero-content {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 52px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+  margin-bottom: 24px;
+}
+
+.hero .highlight {
+  color: var(--primary-blue);
+}
+
+.hero .subheading {
+  font-size: 20px;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  line-height: 1.5;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.trust-badges {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border-gray);
+}
+
+.trust-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.trust-badge svg {
+  width: 24px;
+  height: 24px;
+  color: var(--trust-green);
+}
+
+/* Core Products Section */
+.core-products {
+  padding: 80px 0;
+  background: white;
+}
+
+.core-products h2 {
+  font-size: 42px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 60px;
+  color: var(--navy);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.product-card {
+  background: white;
+  border: 2px solid var(--border-gray);
+  border-radius: 16px;
+  padding: 40px;
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  border-color: var(--primary-blue);
+  box-shadow: 0 8px 24px rgba(0,102,204,0.12);
+}
+
+.product-icon {
+  width: 64px;
+  height: 64px;
+  background: #F0F7FF;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  font-size: 32px;
+}
+
+.product-card h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--navy);
+}
+
+.product-card .tagline {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.product-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.product-card li {
+  padding: 10px 0;
+  padding-left: 28px;
+  position: relative;
+  color: var(--text-primary);
+  font-size: 15px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.product-card li:last-child {
+  border-bottom: none;
+}
+
+.product-card li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--trust-green);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.product-highlight {
+  background: #F0F7FF;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+  border-left: 4px solid var(--primary-blue);
+}
+
+.product-highlight strong {
+  color: var(--primary-blue);
+  font-size: 18px;
+}
+
+/* Secondary Product */
+.secondary-product {
+  background: var(--light-gray);
+  border-radius: 12px;
+  padding: 32px;
+  margin-top: 40px;
+}
+
+.secondary-product h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--navy);
+}
+
+.secondary-product p {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.secondary-product ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.secondary-product li {
+  padding-left: 24px;
+  position: relative;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.secondary-product li:before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--primary-blue);
+  font-weight: 700;
+}
+
+/* Integration Flow */
+.integration {
+  padding: 80px 0;
+  background: var(--navy);
+  color: white;
+}
+
+.integration h2 {
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.flow-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.flow-step {
+  text-align: center;
+  position: relative;
+}
+
+.flow-number {
+  width: 60px;
+  height: 60px;
+  background: var(--primary-blue);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 auto 20px;
+}
+
+.flow-step h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.flow-step p {
+  color: rgba(255,255,255,0.8);
+  font-size: 15px;
+}
+
+.flow-tag {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-block;
+}
+
+/* Use Cases */
+.use-cases {
+  padding: 80px 0;
+  background: white;
+}
+
+.use-cases h2 {
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 60px;
+  color: var(--navy);
+}
+
+.use-case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.use-case {
+  background: white;
+  border: 1px solid var(--border-gray);
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.use-case h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--navy);
+}
+
+.use-case p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin-bottom: 16px;
+}
+
+.use-case ul {
+  list-style: none;
+  padding: 0;
+}
+
+.use-case li {
+  padding-left: 24px;
+  position: relative;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.use-case li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--trust-green);
+  font-weight: 700;
+}
+
+/* API Examples */
+.api-section {
+  padding: 80px 0;
+  background: var(--light-gray);
+}
+
+.api-section h2 {
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 24px;
+  color: var(--navy);
+}
+
+.api-section .subtitle {
+  text-align: center;
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 60px;
+}
+
+.api-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 32px;
+}
+
+.api-demo {
+  background: white;
+  border: 1px solid var(--border-gray);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.api-demo-header {
+  background: var(--navy);
+  color: white;
+  padding: 16px 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.api-demo-body {
+  padding: 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  overflow-x: auto;
+  background: #FAFAFA;
+}
+
+.json-key {
+  color: var(--primary-blue);
+}
+
+.json-string {
+  color: var(--trust-green);
+}
+
+.json-number {
+  color: #D97706;
+}
+
+/* Technical Specs */
+.specs {
+  padding: 80px 0;
+  background: white;
+}
+
+.specs h2 {
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 60px;
+  color: var(--navy);
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 32px;
+}
+
+.spec-card {
+  background: var(--light-gray);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+}
+
+.spec-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--navy);
+}
+
+.spec-card p {
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, #0052A3 100%);
+  color: white;
+  text-align: center;
+}
+
+.cta-section h2 {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.cta-section p {
+  font-size: 18px;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-white {
+  background: white;
+  color: var(--primary-blue);
+  padding: 14px 32px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.btn-white:hover {
+  background: #f5f5f5;
+}
+
+.btn-outline-white {
+  background: transparent;
+  color: white;
+  padding: 14px 32px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 2px solid white;
+  font-size: 16px;
+}
+
+.btn-outline-white:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Footer */
+footer {
+  background: var(--navy);
+  color: white;
+  padding: 60px 0 30px;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.footer-section ul {
+  list-style: none;
+}
+
+.footer-section li {
+  margin-bottom: 12px;
+}
+
+.footer-section a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.footer-section a:hover {
+  color: white;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 30px;
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+  
+  .nav-links {
+    gap: 16px;
+    font-size: 14px;
+  }
+  
+  .trust-badges {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .api-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="container">
+    <a href="#" class="logo"><img src="cropped-Logo-Design-35-180x180.png" alt="Infoworks Solutions" style="height:60px;vertical-align:middle;margin-right:10px">Infoworks Solutions</a>
+    <div class="nav-links">
+      <a href="products.html">Products</a>
+      <a href="use-cases.html">Use Cases</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="btn-primary">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <h1>Preventive Care Action <span class="highlight">In 3 Seconds</span></h1>
+      <p class="subheading">AI-powered oral health scoring and CMS-compliant FHIR APIs that drive member engagement before problems become claims</p>
+      <div class="hero-ctas">
+        <a href="contact.html" class="btn-primary">Request a Demo</a>
+        <a href="#api" class="btn-secondary">View API Docs</a>
+      </div>
+      
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          <span>3-Second AI Analysis</span>
+        </div>
+        <div class="trust-badge">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+          <span>CMS-Compliant FHIR R4</span>
+        </div>
+        <div class="trust-badge">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+          <span>Automated Member Campaigns</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Core Products -->
+<section id="products" class="core-products">
+  <div class="container">
+    <h2>Built for Dental Insurance Payers</h2>
+    
+    <div class="product-grid">
+      <!-- Dental AI -->
+      <div class="product-card">
+        <div class="product-icon">🦷</div>
+        <h3>AI Dental Image Analysis</h3>
+        <p class="tagline">Instant oral health scores from member photos—analyze and return results in 3 seconds</p>
+        <ul>
+          <li>Cavity risk assessment (0-100 score)</li>
+          <li>Gum health evaluation</li>
+          <li>Plaque level detection</li>
+          <li>Overall oral health score</li>
+          <li>Confidence levels for every indicator</li>
+          <li>JPEG, PNG, DICOM support up to 20MB</li>
+          <li>Automatic quality validation</li>
+        </ul>
+        <div class="product-highlight">
+          <strong>3-second response time</strong> — Fast enough for real-time member engagement
+        </div>
+      </div>
+      
+      <!-- FHIR APIs -->
+      <div class="product-card">
+        <div class="product-icon">🏥</div>
+        <h3>CMS-Compliant FHIR APIs</h3>
+        <p class="tagline">Multi-tenant HL7 FHIR R4 platform for payers to meet federal interoperability mandates</p>
+        <ul>
+          <li>26 FHIR resource types supported</li>
+          <li>Patient Access API (CMS-9115-F)</li>
+          <li>Payer-to-Payer exchange (CMS-0057-F)</li>
+          <li>Claims, EOB, Coverage, Preauthorization</li>
+          <li>SMART on FHIR authorization (OAuth 2.0)</li>
+          <li>Bulk data export for analytics</li>
+          <li>Isolated multi-tenant data storage</li>
+        </ul>
+        <div class="product-highlight">
+          <strong>Compliance-ready</strong> — Deploy in weeks, not months
+        </div>
+      </div>
+    </div>
+    
+    <!-- Secondary Product -->
+    <div class="secondary-product">
+      <h3>💬 Member SMS Campaign Platform</h3>
+      <p>Automate targeted engagement campaigns using coverage data and AI health scores</p>
+      <ul>
+        <li>Welcome campaigns for new enrollees</li>
+        <li>Referral campaigns for member growth</li>
+        <li>Utilization campaigns to drive preventive care</li>
+        <li>Holiday campaigns with seasonal messaging</li>
+        <li>Eligibility-based targeting with active coverage verification</li>
+        <li>Bulk and single message support</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Integration Flow -->
+<section class="integration">
+  <div class="container">
+    <h2>Our Platform Solutions</h2>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-number">1</div>
+        <h3>FHIR API Platform</h3>
+        <p>Access patient records, claims, EOBs, coverage data through standards-compliant FHIR R4 endpoints</p>
+        <div class="flow-tag">CMS Compliance</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-number">2</div>
+        <h3>Dental Image Analysis</h3>
+        <p>Upload dental photo, receive cavity risk, gum health, plaque, and oral health scores with confidence levels</p>
+        <div class="flow-tag">⚡ 3 seconds</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-number">3</div>
+        <h3>Member SMS Campaigns</h3>
+        <p>Create targeted campaigns for welcome, referral, utilization, and holiday outreach with eligibility verification</p>
+        <div class="flow-tag">Automated Engagement</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Use Cases -->
+<section id="use-cases" class="use-cases">
+  <div class="container">
+    <h2>Use Cases for Payer Innovation Teams</h2>
+    <div class="use-case-grid">
+      <div class="use-case">
+        <h3>Federal Mandate Compliance</h3>
+        <p>Deploy CMS-required Patient Access and Payer-to-Payer FHIR APIs</p>
+        <ul>
+          <li>CMS-9115-F ready out of box</li>
+          <li>CMS-0057-F data exchange</li>
+          <li>Multi-tenant isolation</li>
+          <li>Audit logging included</li>
+        </ul>
+      </div>
+      
+      <div class="use-case">
+        <h3>Member Engagement Apps</h3>
+        <p>Embed instant oral health scoring into member portals</p>
+        <ul>
+          <li>Real-time feedback drives action</li>
+          <li>Track member health trends</li>
+          <li>Improve HEDIS dental metrics</li>
+          <li>Reduce costly ER visits</li>
+        </ul>
+      </div>
+      
+      <div class="use-case">
+        <h3>Teledentistry Programs</h3>
+        <p>Power virtual screening and triage workflows</p>
+        <ul>
+          <li>Pre-visit risk assessment</li>
+          <li>Prioritize high-risk cases</li>
+          <li>Clinical decision support</li>
+          <li>Remote monitoring capability</li>
+        </ul>
+      </div>
+      
+      <div class="use-case">
+        <h3>Preventive Care Campaigns</h3>
+        <p>Target outreach based on AI oral health risk scores</p>
+        <ul>
+          <li>Identify at-risk members early</li>
+          <li>Automated SMS campaigns</li>
+          <li>Measure campaign ROI</li>
+          <li>Drive preventive visit rates</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- API Examples -->
+<section id="api" class="api-section">
+  <div class="container">
+    <h2>Developer-First APIs</h2>
+    <p class="subtitle">RESTful endpoints designed for rapid integration into payer platforms</p>
+    
+    <div class="api-grid">
+      <div class="api-demo">
+        <div class="api-demo-header">
+          <span>POST /dental/analyze</span>
+          <span style="opacity: 0.7;">Dental AI API</span>
+        </div>
+        <div class="api-demo-body">
+{<br>
+  <span class="json-key">"analysis_id"</span>: <span class="json-string">"a3b9c7d2-e1f4"</span>,<br>
+  <span class="json-key">"timestamp"</span>: <span class="json-string">"2026-04-05T14:32:11Z"</span>,<br>
+  <span class="json-key">"scores"</span>: {<br>
+    <span class="json-key">"cavity_risk"</span>: <span class="json-number">42</span>,<br>
+    <span class="json-key">"gum_health"</span>: <span class="json-number">78</span>,<br>
+    <span class="json-key">"plaque_level"</span>: <span class="json-number">35</span>,<br>
+    <span class="json-key">"overall_oral_health"</span>: <span class="json-number">71</span><br>
+  },<br>
+  <span class="json-key">"confidence_levels"</span>: {<br>
+    <span class="json-key">"cavity_risk"</span>: <span class="json-number">0.89</span>,<br>
+    <span class="json-key">"gum_health"</span>: <span class="json-number">0.92</span><br>
+  },<br>
+  <span class="json-key">"processing_time_ms"</span>: <span class="json-number">2847</span><br>
+}
+        </div>
+      </div>
+      
+      <div class="api-demo">
+        <div class="api-demo-header">
+          <span>GET /Patient/{id}</span>
+          <span style="opacity: 0.7;">FHIR R4 API</span>
+        </div>
+        <div class="api-demo-body">
+{<br>
+  <span class="json-key">"resourceType"</span>: <span class="json-string">"Patient"</span>,<br>
+  <span class="json-key">"id"</span>: <span class="json-string">"patient-123"</span>,<br>
+  <span class="json-key">"identifier"</span>: [{<br>
+    <span class="json-key">"system"</span>: <span class="json-string">"urn:oid:2.16.840"</span>,<br>
+    <span class="json-key">"value"</span>: <span class="json-string">"M12345678"</span><br>
+  }],<br>
+  <span class="json-key">"name"</span>: [{<br>
+    <span class="json-key">"family"</span>: <span class="json-string">"Smith"</span>,<br>
+    <span class="json-key">"given"</span>: [<span class="json-string">"John"</span>]<br>
+  }],<br>
+  <span class="json-key">"birthDate"</span>: <span class="json-string">"1980-05-15"</span><br>
+}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Technical Specs -->
+<section class="specs">
+  <div class="container">
+    <h2>Enterprise-Grade Infrastructure</h2>
+    <div class="specs-grid">
+      <div class="spec-card">
+        <h3>Clinically Validated AI</h3>
+        <p>Trained on diverse dental image datasets with quality validation and confidence scoring</p>
+      </div>
+      <div class="spec-card">
+        <h3>HL7 FHIR R4 Compliant</h3>
+        <p>Standards-compliant implementation with US Core profiles and CARIN Blue Button</p>
+      </div>
+      <div class="spec-card">
+        <h3>SMART on FHIR Auth</h3>
+        <p>OAuth 2.0 with PKCE, scoped access tokens, and role-based permissions</p>
+      </div>
+      <div class="spec-card">
+        <h3>Multi-Tenant Isolation</h3>
+        <p>Dedicated data storage per payer with tenant-specific configuration</p>
+      </div>
+      <div class="spec-card">
+        <h3>Bulk Data Export</h3>
+        <p>FHIR Bulk Data Access IG support for analytics and research</p>
+      </div>
+      <div class="spec-card">
+        <h3>HIPAA Compliant</h3>
+        <p>Encrypted at rest and in transit, audit logging, BAA available</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section id="contact" class="cta-section">
+  <div class="container">
+    <h2>Ready to Transform Member Engagement?</h2>
+    <p>Join dental insurance payers using our APIs to meet CMS mandates and drive preventive care</p>
+    <div class="cta-buttons">
+      <a href="contact.html" class="btn-white">Request a Demo</a>
+      <a href="/cdn-cgi/l/email-protection#cebaabada6a0a7adafa28ea7a0a8a1b9a1bca5bdbda1a2bbbaa7a1a0bde0ada1a3f1bdbbaca4abadbaf39aabada6a0a7adafa2ee87a0bfbba7bcb7" class="btn-outline-white">Technical Inquiry</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Products</h4>
+        <ul>
+          <li><a href="products.html">AI Dental Analysis</a></li>
+          <li><a href="products.html">FHIR APIs</a></li>
+          <li><a href="products.html">SMS Campaigns</a></li>
+          <li><a href="#api">API Documentation</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="use-cases.html">Use Cases</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#privacy">Privacy Policy</a></li>
+          <li><a href="#terms">Terms of Service</a></li>
+          <li><a href="#hipaa">HIPAA Compliance</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="/cdn-cgi/l/email-protection#d5b6babba1b4b6a195bcbbb3baa2baa7bea6a6bab9a0a1bcbabba6fbb6bab8"><span class="__cf_email__" data

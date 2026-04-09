@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Scan — Dental Image Analysis</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5;color:#1a1a2e}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:20px 24px;text-align:center}
+.header h1{font-size:22px;font-weight:600}
+.header p{font-size:13px;color:#a0aec0;margin-top:4px}
+.container{max-width:600px;margin:0 auto;padding:16px}
+.progress{display:flex;gap:4px;margin:16px 0}
+.progress-step{flex:1;height:6px;border-radius:3px;background:#ddd;transition:background .3s}
+.progress-step.done{background:#4ecca3}
+.progress-step.active{background:#4ecca3;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.step-label{text-align:center;font-size:13px;color:#666;margin-bottom:16px}
+.card{background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h2{font-size:18px;margin-bottom:8px;color:#1a1a2e}
+.card p{font-size:14px;color:#666;line-height:1.5;margin-bottom:16px}
+.guide-img{width:100%;border-radius:8px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;height:200px;margin-bottom:16px;border:2px dashed #ddd;font-size:48px}
+.camera-area{position:relative;width:100%;aspect-ratio:4/3;background:#000;border-radius:12px;overflow:hidden;margin-bottom:16px}
+.camera-area video{width:100%;height:100%;object-fit:cover}
+.camera-area canvas{display:none}
+.camera-overlay{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.camera-overlay .guide-box{border:3px solid rgba(78,204,163,.6);border-radius:12px;width:80%;height:70%}
+.camera-hint{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#fff;font-size:13px;background:rgba(0,0,0,.5);padding:6px;pointer-events:none}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+.btn-capture{background:#4ecca3;color:#1a1a2e;font-size:18px}
+.btn-capture:hover{background:#3db892}
+.btn-next{background:#1a1a2e;color:#fff;margin-top:8px}
+.btn-next:hover{background:#16213e}
+.btn-retake{background:#e74c3c;color:#fff;margin-top:8px}
+.btn-retake:hover{background:#c0392b}
+.btn-disabled{background:#ccc;color:#999;cursor:not-allowed}
+.thumbnails{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}
+.thumb{border-radius:8px;overflow:hidden;aspect-ratio:1;background:#f0f0f0;position:relative;border:2px solid #ddd}
+.thumb.captured{border-color:#4ecca3}
+.thumb.active{border-color:#4ecca3;box-shadow:0 0 0 3px rgba(78,204,163,.3)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb .label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:10px;text-align:center;padding:2px}
+.thumb .check{position:absolute;top:4px;right:4px;background:#4ecca3;color:#fff;width:18px;height:18px;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center}
+.results{display:none}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.score-card{background:#f8f9fa;border-radius:8px;padding:16px;text-align:center}
+.score-card .value{font-size:32px;font-weight:700}
+.score-card .name{font-size:12px;color:#666;text-transform:uppercase;margin-top:4px}
+.score-green .value{color:#2e7d32}
+.score-yellow .value{color:#f57f17}
+.score-red .value{color:#c62828}
+.overall{text-align:center;padding:24px;margin:16px 0}
+.overall .rating{display:inline-block;padding:8px 32px;border-radius:24px;font-size:20px;font-weight:700;text-transform:uppercase}
+.rating-green{background:#e8f5e9;color:#2e7d32}
+.rating-yellow{background:#fff8e1;color:#f57f17}
+.rating-red{background:#fce4ec;color:#c62828}
+.tips{margin:16px 0}
+.tips li{padding:8px 0;font-size:14px;color:#444;border-bottom:1px solid #f0f0f0;padding-left:24px;position:relative}
+.tips li:before{content:"💡";position:absolute;left:0}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🦷 Smart Scan</h1>
+  <p>AI-Powered Dental Health Screening</p>
+</div>
+<div class="container">
+
+<!-- Progress -->
+<div class="progress" id="progress">
+  <div class="progress-step active" data-step="0"></div>
+  <div class="progress-step" data-step="1"></div>
+  <div class="progress-step" data-step="2"></div>
+  <div class="progress-step" data-step="3"></div>
+  <div class="progress-step" data-step="4"></div>
+</div>
+<div class="step-label" id="step-label">Step 1 of 5 — Front Teeth</div>
+
+<!-- Thumbnails -->
+<div class="thumbnails" id="thumbnails">
+  <div class="thumb active" data-idx="0"><div class="label">Front</div></div>
+  <div class="thumb" data-idx="1"><div class="label">Left</div></div>
+  <div class="thumb" data-idx="2"><div class="label">Right</div></div>
+  <div class="thumb" data-idx="3"><div class="label">Top</div></div>
+</div>
+
+<!-- Capture Screen -->
+<div id="capture-screen">
+  <div class="card">
+    <h2 id="capture-title">📸 Front Teeth</h2>
+    <p id="capture-desc">Open your mouth wide and take a photo showing your front teeth. Hold the camera about 6 inches away.</p>
+  </div>
+
+  <div class="camera-area" id="camera-area">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+    <div class="camera-overlay"><div class="guide-box"></div></div>
+    <div class="camera-hint" id="camera-hint">Position your teeth inside the guide box</div>
+  </div>
+
+  <div id="preview-area" class="hidden">
+    <img id="preview-img" style="width:100%;border-radius:12px;margin-bottom:12px">
+  </div>
+
+  <button class="btn btn-capture" id="btn-capture" onclick="capture()">📷 Take Photo</button>
+  <label class="btn btn-capture" id="btn-upload" style="display:block;cursor:pointer;margin-top:8px;background:#1a1a2e;color:#fff">
+    📁 Upload from Gallery
+    <input type="file" accept="image/*" capture="environment" onchange="handleFileUpload(event)" style="display:none">
+  </label>
+  <button class="btn btn-retake hidden" id="btn-retake" onclick="retake()">Retake Photo</button>
+  <button class="btn btn-next hidden" id="btn-next" onclick="nextStep()">Next →</button>
+</div>
+
+<!-- Submit Screen -->
+<div id="submit-screen" class="hidden">
+  <div class="card">
+    <h2>📤 Ready to Analyze</h2>
+    <p>You've captured all 4 photos. Review them below, then submit for AI analysis.</p>
+  </div>
+  <div class="thumbnails" id="review-thumbs"></div>
+  <button class="btn btn-capture" onclick="submitForAnalysis()">🔬 Analyze My Teeth</button>
+  <div id="analyzing" class="hidden" style="text-align:center;padding:32px">
+    <div style="font-size:48px;animation:pulse 1s infinite">🦷</div>
+    <p style="margin-top:12px;color:#666">Analyzing your dental photos...</p>
+    <p style="font-size:12px;color:#999;margin-top:4px">This takes about 3 seconds</p>
+  </div>
+</div>
+
+<!-- Results Screen -->
+<div id="results-screen" class="hidden">
+  <div class="card">
+    <h2>📊 Your Oral Health Results</h2>
+    <p>Based on AI analysis of your 4 dental photos</p>
+  </div>
+
+  <div class="overall">
+    <div id="overall-rating" class="rating rating-green">Good</div>
+  </div>
+
+  <div class="score-grid">
+    <div class="score-card" id="sc-cavity"><div class="value">--</div><div class="name">Cavity Risk</div></div>
+    <div class="score-card" id="sc-gum"><div class="value">--</div><div class="name">Gum Health</div></div>
+    <div class="score-card" id="sc-plaque"><div class="value">--</div><div class="name">Plaque Level</div></div>
+    <div class="score-card" id="sc-overall"><div class="value">--</div><div class="name">Overall Health</div></div>
+  </div>
+
+  <div class="card">
+    <h2>💡 Recommendations</h2>
+    <ul class="tips" id="tips-list"></ul>
+  </div>
+
+  <button class="btn btn-next" onclick="location.reload()">Start New Scan</button>
+</div>
+
+</div>
+
+<script>
+const STEPS = [
+  { name: 'Front Teeth', icon: '📸', desc: 'Open your mouth wide and take a photo showing your front teeth. Hold the camera about 6 inches away.' },
+  { name: 'Left Side', icon: '👈', desc: 'Turn your head slightly right and pull your left cheek back. Capture the left side teeth and gums.' },
+  { name: 'Right Side', icon: '👉', desc: 'Turn your head slightly left and pull your right cheek back. Capture the right side teeth and gums.' },
+  { name: 'Top Teeth', icon: '⬆️', desc: 'Tilt your head back slightly and open wide. Capture the biting surfaces of your upper teeth.' },
+];
+
+let currentStep = 0;
+let photos = [null, null, null, null];
+let stream = null;
+
+// Start camera
+async function startCamera() {
+  try {
+    // Try rear camera first (better for dental photos on mobile)
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 960 } }
+    });
+    document.getElementById('video').srcObject = stream;
+    document.getElementById('btn-upload').classList.add('hidden');
+  } catch (e) {
+    // Camera not available — show file upload instead
+    document.getElementById('camera-area').classList.add('hidden');
+    document.getElementById('btn-capture').classList.add('hidden');
+    document.getElementById('btn-upload').classList.remove('hidden');
+    document.getElementById('camera-hint').textContent = '';
+  }
+}
+
+function updateUI() {
+  // Progress
+  document.querySelectorAll('.progress-step').forEach((el, i) => {
+    el.classList.toggle('done', i < currentStep);
+    el.classList.toggle('active', i === currentStep);
+  });
+  document.getElementById('step-label').textContent = `Step ${currentStep + 1} of ${STEPS.length + 1} — ${currentStep < 4 ? STEPS[currentStep].name : 'Review'}`;
+
+  // Thumbnails
+  document.querySelectorAll('#thumbnails .thumb').forEach((el, i) => {
+    el.classList.toggle('active', i === currentStep);
+    el.classList.toggle('captured', photos[i] !== null);
+    if (photos[i]) {
+      if (!el.querySelector('img')) {
+        const img = document.createElement('img');
+        img.src = photos[i];
+        el.prepend(img);
+      }
+      if (!el.querySelector('.check')) {
+        const check = document.createElement('div');
+        check.className = 'check';
+        check.textContent = '✓';
+        el.appendChild(check);
+      }
+    }
+  });
+
+  // Step info
+  if (currentStep < 4) {
+    const step = STEPS[currentStep];
+    document.getElementById('capture-title').textContent = `${step.icon} ${step.name}`;
+    document.getElementById('capture-desc').textContent = step.desc;
+  }
+}
+
+function capture() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  photos[currentStep] = dataUrl;
+
+  // Show preview
+  document.getElementById('preview-img').src = dataUrl;
+  document.getElementById('preview-area').classList.remove('hidden');
+  document.getElementById('camera-area').classList.add('hidden');
+  document.getElementById('btn-capture').classList.add('hidden');
+  document.getElementById('btn-retake').classList.remove('hidden');
+  document.getElementById('btn-next').classList.remove('hidden');
+  updateUI();
+}
+
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    photos[currentStep] = e.target.result;
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('preview-area').classList.remove('hidden');
+    document.getElementById('camera-area').classList.add('hidden');
+    document.getElementById('btn-capture').classList.add('hidden');
+    document.getElementById('btn-upload').classList.add('hidden');
+    document.getElementById('btn-retake').classList.remove('hidden');
+    document.getElementById('btn-next').classList.remove('hidden');
+    updateUI();
+  };
+  reader.readAsDataURL(file);
+}
+
+function retake() {
+  photos[currentStep] = null;
+  document.getElementById('preview-area').classList.add('hidden');
+  document.getElementById('camera-area').classList.remove('hidden');
+  document.getElementById('btn-retake').classList.add('hidden');
+  document.getElementById('btn-next').classList.add('hidden');
+  if (stream) {
+    document.getElementById('btn-capture').classList.remove('hidden');
+    document.getElementById('btn-upload').classList.add('hidden');
+  } else {
+    document.getElementById('btn-capture').classList.add('hidden');
+    document.getElementById('btn-upload').classList.remove('hidden');
+    document.getElementById('camera-area').classList.add('hidden');
+  }
+  // Remove thumb image
+  const thumb = document.querySelector(`#thumbnails .thumb[data-idx="${currentStep}"]`);
+  const img = thumb.querySelector('img');
+  const check = thumb.querySelector('.check');
+  if (img) img.remove();
+  if (check) check.remove();
+  updateUI();
+}
+
+function nextStep() {
+  currentStep++;
+  if (currentStep >= 4) { showSubmitScreen(); return; }
+  document.getElementById('preview-area').classList.add('hidden');
+  document.getElementById('btn-retake').classList.add('hidden');
+  document.getElementById('btn-next').classList.add('hidden');
+  if (stream) {
+    document.getElementById('camera-area').classList.remove('hidden');
+    document.getElementById('btn-capture').classList.remove('hidden');
+    document.getElementById('btn-upload').classList.add('hidden');
+  } else {
+    document.getElementById('camera-area').classList.add('hidden');
+    document.getElementById('btn-capture').classList.add('hidden');
+    document.getElementById('btn-upload').classList.remove('hidden');
+  }
+  // Reset file input
+  const fileInput = document.querySelector('#btn-upload input');
+  if (fileInput) fileInput.value = '';
+  updateUI();
+}
+
+function showSubmitScreen() {
+  document.getElementById('capture-screen').classList.add('hidden');
+  document.getElementById('submit-screen').classList.remove('hidden');
+  // Build review thumbnails
+  const container = document.getElementById('review-thumbs');
+  container.innerHTML = photos.map((p, i) => `
+    <div class="thumb captured">
+      <img src="${p}">
+      <div class="label">${STEPS[i].name}</div>
+      <div class="check">✓</div>
+    </div>
+  `).join('');
+  document.getElementById('step-label').textContent = 'Step 5 of 5 — Review & Submit';
+  document.querySelectorAll('.progress-step').forEach((el, i) => {
+    el.classList.toggle('done', i < 4);
+    el.classList.toggle('active', i === 4);
+  });
+}
+
+async function submitForAnalysis() {
+  document.querySelector('#submit-screen .btn-capture').classList.add('hidden');
+  document.getElementById('analyzing').classList.remove('hidden');
+
+  // Simulate AI analysis (in production, POST to /analyses with each photo)
+  await new Promise(r => setTimeout(r, 3000));
+
+  // Generate scores (in production, these come from the API)
+  const scores = {
+    cavity_risk: Math.floor(Math.random() * 60) + 10,
+    gum_health: Math.floor(Math.random() * 40) + 55,
+    plaque_level: Math.floor(Math.random() * 50) + 15,
+    overall_oral_health: Math.floor(Math.random() * 30) + 60,
+  };
+
+  showResults(scores);
+}
+
+function scoreColor(score, inverse = false) {
+  const val = inverse ? 100 - score : score;
+  if (val >= 70) return 'score-green';
+  if (val >= 40) return 'score-yellow';
+  return 'score-red';
+}
+
+function showResults(scores) {
+  document.getElementById('submit-screen').classList.add('hidden');
+  document.getElementById('results-screen').classList.remove('hidden');
+  document.getElementById('thumbnails').classList.add('hidden');
+  document.querySelector('.progress').classList.add('hidden');
+  document.getElementById('step-label').textContent = 'Analysis Complete';
+
+  // Scores
+  const sc = (id, val, inverse) => {
+    const el = document.getElementById(id);
+    el.querySelector('.value').textContent = val;
+    el.className = `score-card ${scoreColor(val, inverse)}`;
+  };
+  sc('sc-cavity', scores.cavity_risk, true); // lower is better
+  sc('sc-gum', scores.gum_health, false);
+  sc('sc-plaque', scores.plaque_level, true); // lower is better
+  sc('sc-overall', scores.overall_oral_health, false);
+
+  // Overall rating
+  const overall = scores.overall_oral_health;
+  const ratingEl = document.getElementById('overall-rating');
+  if (overall >= 70) { ratingEl.textContent = '🟢 Good'; ratingEl.className = 'rating rating-green'; }
+  else if (overall >= 40) { ratingEl.textContent = '🟡 Fair'; ratingEl.className = 'rating rating-yellow'; }
+  else { ratingEl.textContent = '🔴 Needs Attention'; ratingEl.className = 'rating rating-red'; }
+
+  // Tips
+  const tips = [];
+  if (scores.cavity_risk > 50) tips.push('Schedule a dental checkup soon — elevated cavity risk detected.');
+  if (scores.gum_health < 60) tips.push('Consider using an antiseptic mouthwash to improve gum health.');
+  if (scores.plaque_level > 40) tips.push('Brush twice daily and floss regularly to reduce plaque buildup.');
+  if (scores.overall_oral_health < 70) tips.push('A professional cleaning can significantly improve your oral health score.');
+  tips.push('Continue regular dental visits every 6 months for preventive care.');
+  tips.push('Replace your toothbrush every 3 months for optimal cleaning.');
+  document.getElementById('tips-list').innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+}
+
+// Init
+startCamera();
+updateUI();
+</script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "DentalImageAnalysis.Api/1.0.0": {
+        "dependencies": {
+          "Azure.AI.OpenAI": "2.2.0-beta.1",
+          "Swashbuckle.AspNetCore": "7.2.0"
+        },
+        "runtime": {
+          "DentalImageAnalysis.Api.dll": {}
+        }
+      },
+      "Azure.AI.OpenAI/2.2.0-beta.1": {
+        "dependencies": {
+          "Azure.Core": "1.44.1",
+          "OpenAI": "2.2.0-beta.1"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Azure.AI.OpenAI.dll": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.200.25.10701"
+          }
+        }
+      },
+      "Azure.Core/1.44.1": {
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
+          "System.ClientModel": "1.2.1",
+          "System.Memory.Data": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/Azure.Core.dll": {
+            "assemblyVersion": "1.44.1.0",
+            "fileVersion": "1.4400.124.50905"
+          }
+        }
+      },
+      "Microsoft.Bcl.AsyncInterfaces/6.0.0": {
+        "runtime": {
+          "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "Microsoft.OpenApi/1.6.22": {
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.OpenApi.dll": {
+            "assemblyVersion": "1.6.22.0",
+            "fileVersion": "1.6.22.0"
+          }
+        }
+      },
+      "OpenAI/2.2.0-beta.1": {
+        "dependencies": {
+          "System.ClientModel": "1.2.1"
+        },
+        "runtime": {
+          "lib/net8.0/OpenAI.dll": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.0"
+          }
+        }
+      },
+      "Swashbuckle.AspNetCore/7.2.0": {
+        "dependencies": {
+          "Swashbuckle.AspNetCore.Swagger": "7.2.0",
+          "Swashbuckle.AspNetCore.SwaggerGen": "7.2.0",
+          "Swashbuckle.AspNetCore.SwaggerUI": "7.2.0"
+        }
+      },
+      "Swashbuckle.AspNetCore.Swagger/7.2.0": {
+        "dependencies": {
+          "Microsoft.OpenApi": "1.6.22"
+        },
+        "runtime": {
+          "lib/net9.0/Swashbuckle.AspNetCore.Swagger.dll": {
+            "assemblyVersion": "7.2.0.0",
+            "fileVersion": "7.2.0.956"
+          }
+        }
+      },
+      "Swashbuckle.AspNetCore.SwaggerGen/7.2.0": {
+        "dependencies": {
+          "Swashbuckle.AspNetCore.Swagger": "7.2.0"
+        },
+        "runtime": {
+          "lib/net9.0/Swashbuckle.AspNetCore.SwaggerGen.dll": {
+            "assemblyVersion": "7.2.0.0",
+            "fileVersion": "7.2.0.956"
+          }
+        }
+      },
+      "Swashbuckle.AspNetCore.SwaggerUI/7.2.0": {
+        "runtime": {
+          "lib/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll": {
+            "assemblyVersion": "7.2.0.0",
+            "fileVersion": "7.2.0.956"
+          }
+        }
+      },
+      "System.ClientModel/1.2.1": {
+        "dependencies": {
+          "System.Memory.Data": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/System.ClientModel.dll": {
+            "assemblyVersion": "1.2.1.0",
+            "fileVersion": "1.200.124.50905"
+          }
+        }
+      },
+      "System.Memory.Data/6.0.0": {
+        "runtime": {
+          "lib/net6.0/System.Memory.Data.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "DentalImageAnalysis.Api/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Azure.AI.OpenAI/2.2.0-beta.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-PQQg4Jc4NdwBnYID4Rr2SzJP72d1ihKUR3PKBoKV9cRD1cEGNjokkZRG/4j62uEFtNoxcF+ugQDMi9ShL/Y8gQ==",
+      "path": "azure.ai.openai/2.2.0-beta.1",
+      "hashPath": "azure.ai.openai.2.2.0-beta.1.nupkg.sha512"
+    },
+    "Azure.Core/1.44.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YyznXLQZCregzHvioip07/BkzjuWNXogJEVz9T5W6TwjNr17ax41YGzYMptlo2G10oLCuVPoyva62y0SIRDixg==",
+      "path": "azure.core/1.44.1",
+      "hashPath": "azure.core.1.44.1.nupkg.sha512"
+    },
+    "Microsoft.Bcl.AsyncInterfaces/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-UcSjPsst+DfAdJGVDsu346FX0ci0ah+lw3WRtn18NUwEqRt70HaOQ7lI72vy3+1LxtqI3T5GWwV39rQSrCzAeg==",
+      "path": "microsoft.bcl.asyncinterfaces/6.0.0",
+      "hashPath": "microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512"
+    },
+    "Microsoft.OpenApi/1.6.22": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-aBvunmrdu/x+4CaA/UP1Jx4xWGwk4kymhoIRnn2Vp+zi5/KOPQJ9EkSXHRUr01WcGKtYl3Au7XfkPJbU1G2sjQ==",
+      "path": "microsoft.openapi/1.6.22",
+      "hashPath": "microsoft.openapi.1.6.22.nupkg.sha512"
+    },
+    "OpenAI/2.2.0-beta.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-h0NKU7n5CppiyhZvcu6RtmrHUnN8IUpvbfCuEhFMPaeWKJIGEpRVP3PVywuJAqPugXp0zMFM3afFQFDQ8Sjiaw==",
+      "path": "openai/2.2.0-beta.1",
+      "hashPath": "openai.2.2.0-beta.1.nupkg.sha512"
+    },
+    "Swashbuckle.AspNetCore/7.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-vJv19UpWm6OOgnS9QLDnWARNVasXUfj8SFvlG7UVALm4nBnfwRnEky7C0veSDqMUmBeMPC6Ec3d6G1ts/J04Uw==",
+      "path": "swashbuckle.aspnetcore/7.2.0",
+      "hashPath": "swashbuckle.aspnetcore.7.2.0.nupkg.sha512"
+    },
+    "Swashbuckle.AspNetCore.Swagger/7.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-y27fNDfIh1vGhJjXYynLcZjl7DLOW1bSO2MDsY9wB4Zm1fdxpPsuBSiR4U+0acWlAqLmnuOPKr/OeOgwRUkBlw==",
+      "path": "swashbuckle.aspnetcore.swagger/7.2.0",
+      "hashPath": "swashbuckle.aspnetcore.swagger.7.2.0.nupkg.sha512"
+    },
+    "Swashbuckle.AspNetCore.SwaggerGen/7.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pMrTxGVuXM7t4wqft5CNNU8A0++Yw5kTLmYhB6tbEcyBfO8xEF/Y8pkJhO6BZ/2MYONrRYoQTfPFJqu8fOf5WQ==",
+      "path": "swashbuckle.aspnetcore.swaggergen/7.2.0",
+      "hashPath": "swashbuckle.aspnetcore.swaggergen.7.2.0.nupkg.sha512"
+    },
+    "Swashbuckle.AspNetCore.SwaggerUI/7.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hgrXeKzyp5OGN8qVvL7A+vhmU7mDJTfGpiMBRL66IcfLOyna8UTLtn3cC3CghamXpRDufcc9ciklTszUGEQK0w==",
+      "path": "swashbuckle.aspnetcore.swaggerui/7.2.0",
+      "hashPath": "swashbuckle.aspnetcore.swaggerui.7.2.0.nupkg.sha512"
+    },
+    "System.ClientModel/1.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-s9+M5El+DXdCRRLzxak8uGBKWT8H/eIssGpFtpaMKdJULrQbBDPH/zFbVyHX+NDczhS5EvjHFbBH9/L+0UhmcA==",
+      "path": "system.clientmodel/1.2.1",
+      "hashPath": "system.clientmodel.1.2.1.nupkg.sha512"
+    },
+    "System.Memory.Data/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ntFHArH3I4Lpjf5m4DCXQHJuGwWPNVJPaAvM95Jy/u+2Yzt2ryiyIN04LAogkjP9DeRcEOiviAjQotfmPq/FrQ==",
+      "path": "system.memory.data/6.0.0",
+      "hashPath": "system.memory.data.6.0.0.nupkg.sha512"
+    }
+  }
+}

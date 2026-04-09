@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dental Image Score Analysis</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; padding: 2rem; }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.25rem; color: #2b6cb0; }
+    .subtitle { text-align: center; color: #718096; margin-bottom: 2rem; font-size: 0.95rem; }
+    .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 780px; margin: 0 auto 1.5rem; }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #2d3748; }
+    label { font-size: 0.875rem; color: #4a5568; display: block; margin-bottom: 0.4rem; }
+    input[type="password"] { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.875rem; margin-bottom: 1rem; }
+    .drop-zone { border: 2px dashed #bee3f8; border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer; background: #ebf8ff; transition: background 0.2s; margin-bottom: 1rem; }
+    .drop-zone:hover, .drop-zone.dragover { background: #bee3f8; }
+    .drop-zone input[type="file"] { display: none; }
+    .drop-zone .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .drop-zone p { color: #4299e1; font-size: 0.9rem; }
+    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+    .preview-item { position: relative; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; background: #f7fafc; }
+    .preview-item img { width: 100%; height: 110px; object-fit: cover; display: block; }
+    .preview-item .fname { font-size: 0.7rem; color: #718096; padding: 0.3rem 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .preview-item .remove-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .preview-item .status-badge { position: absolute; bottom: 28px; left: 0; right: 0; text-align: center; font-size: 0.7rem; padding: 2px 4px; }
+    button.primary { width: 100%; padding: 0.65rem; background: #3182ce; color: white; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    button.primary:hover:not(:disabled) { background: #2b6cb0; }
+    button.primary:disabled { background: #a0aec0; cursor: not-allowed; }
+    #status-msg { text-align: center; font-size: 0.875rem; color: #718096; margin-top: 0.75rem; min-height: 1.2rem; }
+    .error-box { background: #fff5f5; border: 1px solid #feb2b2; border-radius: 8px; padding: 0.75rem 1rem; color: #c53030; font-size: 0.875rem; margin-top: 0.75rem; display: none; }
+    .results-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    .result-block { border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .result-header { background: #f7fafc; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 0.5rem; }
+    .result-header img { width: 36px; height: 36px; object-fit: cover; border-radius: 4px; }
+    .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 1rem; }
+    .score-card { background: #f7fafc; border-radius: 10px; padding: 0.75rem; border: 1px solid #e2e8f0; }
+    .score-card .label { font-size: 0.72rem; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+    .score-card .value { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+    .score-card .confidence { font-size: 0.72rem; color: #a0aec0; margin-top: 0.25rem; }
+    .bar-wrap { background: #e2e8f0; border-radius: 99px; height: 5px; margin-top: 0.4rem; overflow: hidden; }
+    .bar { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
+    .meta { font-size: 0.72rem; color: #a0aec0; padding: 0 1rem 0.75rem; text-align: right; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<h1>🦷 Dental Image Score Analysis</h1>
+<p class="subtitle">Upload one or more dental images for AI-powered health scoring</p>
+
+<!-- Auth -->
+<div class="card">
+  <h2>Authentication</h2>
+  <label for="jwt-input">JWT Bearer Token</label>
+  <input type="password" id="jwt-input" placeholder="Paste your JWT token here" />
+  <p style="font-size:0.78rem;color:#a0aec0;">Generate: <code>node -e "import('jsonwebtoken').then(m => console.log(m.default.sign({sub:'user-001'}, 'dental-dev-secret')))"</code></p>
+</div>
+
+<!-- Upload -->
+<div class="card">
+  <h2>Upload Dental Images</h2>
+  <div class="drop-zone" id="drop-zone">
+    <input type="file" id="file-input" accept="image/jpeg,image/png" multiple />
+    <div class="icon">📁</div>
+    <p>Drag & drop images here, or <strong>click to browse</strong></p>
+    <p style="font-size:0.78rem;color:#a0aec0;margin-top:0.3rem;">JPEG or PNG · max 20 MB each · min 300×300 px · multiple files supported</p>
+  </div>
+
+  <div class="preview-grid" id="preview-grid"></div>
+
+  <button class="primary" id="analyze-btn" disabled>Analyze Images</button>
+  <div id="status-msg"></div>
+  <div class="error-box" id="error-box"></div>
+</div>
+
+<!-- Results -->
+<div class="card" id="results-card" style="display:none">
+  <h2>Score Reports</h2>
+  <div class="results-list" id="results-list"></div>
+</div>
+
+<script>
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const previewGrid = document.getElementById('preview-grid');
+  const analyzeBtn = document.getElementById('analyze-btn');
+  const statusMsg = document.getElementById('status-msg');
+  const errorBox = document.getElementById('error-box');
+  const resultsCard = document.getElementById('results-card');
+  const resultsList = document.getElementById('results-list');
+  const jwtInput = document.getElementById('jwt-input');
+
+  let selectedFiles = [];
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault(); dropZone.classList.remove('dragover');
+    addFiles(Array.from(e.dataTransfer.files));
+  });
+  fileInput.addEventListener('change', () => { addFiles(Array.from(fileInput.files)); fileInput.value = ''; });
+
+  function addFiles(files) {
+    files.forEach(f => {
+      if (!selectedFiles.find(x => x.name === f.name && x.size === f.size)) selectedFiles.push(f);
+    });
+    renderPreviews();
+    analyzeBtn.disabled = selectedFiles.length === 0;
+    hideError();
+  }
+
+  function removeFile(idx) {
+    selectedFiles.splice(idx, 1);
+    renderPreviews();
+    analyzeBtn.disabled = selectedFiles.length === 0;
+  }
+
+  function renderPreviews() {
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach((f, i) => {
+      const div = document.createElement('div');
+      div.className = 'preview-item';
+      div.id = `preview-${i}`;
+      const img = document.createElement('img');
+      const reader = new FileReader();
+      reader.onload = e => { img.src = e.target.result; };
+      reader.readAsDataURL(f);
+      const fname = document.createElement('div');
+      fname.className = 'fname';
+      fname.textContent = f.name;
+      const btn = document.createElement('button');
+      btn.className = 'remove-btn';
+      btn.textContent = '✕';
+      btn.onclick = (e) => { e.stopPropagation(); removeFile(i); };
+      div.appendChild(img); div.appendChild(fname); div.appendChild(btn);
+      previewGrid.appendChild(div);
+    });
+  }
+
+  function setPreviewStatus(idx, text, color) {
+    const item = document.getElementById(`preview-${idx}`);
+    if (!item) return;
+    let badge = item.querySelector('.status-badge');
+    if (!badge) { badge = document.createElement('div'); badge.className = 'status-badge'; item.appendChild(badge); }
+    badge.textContent = text;
+    badge.style.background = color;
+    badge.style.color = 'white';
+  }
+
+  analyzeBtn.addEventListener('click', async () => {
+    if (selectedFiles.length === 0) return;
+    const token = jwtInput.value.trim();
+    if (!token) { showError('Please enter your JWT token.'); return; }
+
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = '<span class="spinner"></span>Uploading...';
+    statusMsg.textContent = '';
+    hideError();
+    resultsCard.style.display = 'none';
+    resultsList.innerHTML = '';
+
+    try {
+      // Upload all files and collect analysisIds
+      const jobs = await Promise.all(selectedFiles.map(async (file, idx) => {
+        setPreviewStatus(idx, '⏳ uploading', '#718096');
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch('/analyses', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) { setPreviewStatus(idx, '❌ failed', '#e53e3e'); return { idx, file, error: data.error?.message }; }
+        setPreviewStatus(idx, '🔄 analyzing', '#3182ce');
+        return { idx, file, analysisId: data.analysisId };
+      }));
+
+      analyzeBtn.innerHTML = '<span class="spinner"></span>Analyzing with AI...';
+      statusMsg.textContent = `Analyzing ${jobs.filter(j => j.analysisId).length} image(s)...`;
+
+      // Poll all in parallel
+      const reports = await Promise.all(jobs.map(async (job) => {
+        if (job.error) return { ...job, report: null };
+        try {
+          const report = await pollResult(job.analysisId, token, (s) => {
+            statusMsg.textContent = `Analyzing... (${s}s)`;
+          });
+          setPreviewStatus(job.idx, '✅ done', '#38a169');
+          return { ...job, report };
+        } catch (err) {
+          setPreviewStatus(job.idx, '❌ failed', '#e53e3e');
+          return { ...job, report: null, error: err.message };
+        }
+      }));
+
+      // Render all results
+      resultsCard.style.display = 'block';
+      reports.forEach(job => renderResult(job));
+      statusMsg.textContent = `Completed ${reports.filter(r => r.report).length} of ${reports.length} analysis(es).`;
+
+    } catch (err) {
+      showError(err.message ?? 'An unexpected error occurred.');
+    } finally {
+      analyzeBtn.disabled = false;
+      analyzeBtn.textContent = 'Analyze Images';
+    }
+  });
+
+  async function pollResult(analysisId, token, onTick, maxAttempts = 60) {
+    for (let i = 0; i < maxAttempts; i++) {
+      await sleep(1000);
+      const res = await fetch(`/analyses/${analysisId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      if (res.status === 200) return data;
+      if (res.status === 202) { onTick && onTick(i + 1); continue; }
+      throw new Error(data.error?.message ?? 'Analysis failed.');
+    }
+    throw new Error('Analysis timed out.');
+  }
+
+  function renderResult(job) {
+    const block = document.createElement('div');
+    block.className = 'result-block';
+
+    const header = document.createElement('div');
+    header.className = 'result-header';
+    const thumbImg = document.createElement('img');
+    const reader = new FileReader();
+    reader.onload = e => { thumbImg.src = e.target.result; };
+    reader.readAsDataURL(job.file);
+    header.appendChild(thumbImg);
+    header.appendChild(document.createTextNode(job.file.name));
+    block.appendChild(header);
+
+    if (job.error || !job.report) {
+      const errDiv = document.createElement('div');
+      errDiv.style.cssText = 'padding:1rem;color:#c53030;font-size:0.875rem;';
+      errDiv.textContent = job.error ?? 'Analysis failed.';
+      block.appendChild(errDiv);
+    } else {
+      const report = job.report;
+      const indicators = [
+        { key: 'cavity_risk',         label: 'Cavity Risk',         color: '#e53e3e' },
+        { key: 'gum_health',          label: 'Gum Health',          color: '#38a169' },
+        { key: 'plaque_level',        label: 'Plaque Level',        color: '#d69e2e' },
+        { key: 'overall_oral_health', label: 'Overall Oral Health', color: '#3182ce' },
+      ];
+      const grid = document.createElement('div');
+      grid.className = 'score-grid';
+      indicators.forEach(ind => {
+        const item = report.indicators.find(i => i.indicator === ind.key);
+        if (!item) return;
+        grid.innerHTML += `
+          <div class="score-card">
+            <div class="label">${ind.label}</div>
+            <div class="value" style="color:${ind.color}">${item.score}</div>
+            <div class="bar-wrap"><div class="bar" style="width:${item.score}%;background:${ind.color}"></div></div>
+            <div class="confidence">Confidence: ${Math.round(item.confidence * 100)}%</div>
+          </div>`;
+      });
+      block.appendChild(grid);
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = `ID: ${report.analysisId} · ${new Date(report.completedAt).toLocaleString()}`;
+      block.appendChild(meta);
+    }
+
+    resultsList.appendChild(block);
+  }
+
+  function showError(msg) { errorBox.textContent = msg; errorBox.style.display = 'block'; }
+  function hideError() { errorBox.style.display = 'none'; }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>

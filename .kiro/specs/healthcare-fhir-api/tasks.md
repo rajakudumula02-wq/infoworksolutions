@@ -1,0 +1,643 @@
+# Implementation Plan: Healthcare FHIR API
+
+## Overview
+
+Incremental implementation of an HL7 FHIR R4-compliant ASP.NET Core 8 API using Firely SDK, EF Core + PostgreSQL (JSONB), Redis, xUnit, and FsCheck. Each task builds on the previous, ending with all components wired together.
+
+## Tasks
+
+- [x] 1. Scaffold solution structure and core project files
+  - Create `HealthcareFhirApi.sln` with three projects: `HealthcareFhirApi.Api`, `HealthcareFhirApi.Core`, `HealthcareFhirApi.Infrastructure`
+  - Add NuGet references: `Hl7.Fhir.R4`, `Npgsql.EntityFrameworkCore.PostgreSQL`, `StackExchange.Redis`, `Microsoft.AspNetCore.Authentication.JwtBearer`
+  - Create test projects `HealthcareFhirApi.UnitTests` and `HealthcareFhirApi.PropertyTests` with `xunit`, `FsCheck.Xunit`, `Microsoft.AspNetCore.Mvc.Testing`, `Testcontainers.PostgreSql`, `Moq`
+  - _Requirements: 1.1_
+
+- [x] 2. Define Core domain interfaces, models, and exceptions
+  - [x] 2.1 Create domain interfaces in `HealthcareFhirApi.Core/Interfaces/`
+    - Write `IFhirResourceRepository<TResource>`, `IFhirValidationService`, `IAuditService`, `IPaginationService`, `ITerminologyService`, `ICapabilityStatementBuilder`
+    - _Requirements: 1.1, 3.1–3.4, 10.1–10.4, 11.1_
+  - [x] 2.2 Create domain models in `HealthcareFhirApi.Core/Models/`
+    - Write `SearchParameters`, `PagedResult<T>`, `AuditContext`, `YearEndReportResult`, `CoveredServiceSummary`
+    - _Requirements: 10.1, 11.2, 14.2_
+  - [x] 2.3 Create custom exception types in `HealthcareFhirApi.Core/Exceptions/`
+    - Write `ResourceNotFoundException`, `FhirValidationException`, `ScopeViolationException`, `UnsupportedMediaTypeException`, `UnsupportedCodeSystemException`, `ResourceTypeMismatchException`
+    - _Requirements: 12.1–12.4_
+
+- [x] 3. Implement EF Core data layer and repository
+  - [x] 3.1 Create `FhirResourceEntity` and `FhirDbContext` with JSONB column mapping
+    - Define composite primary key `(ResourceType, Id)`, JSONB `Data` column, indexes on `ResourceType` and `LastUpdated`
+    - _Requirements: 1.7_
+  - [x] 3.2 Implement `FhirResourceRepository<TResource>` with `GetByIdAsync`, `SearchAsync`, `CreateAsync`, `UpdateAsync`
+    - Use `FhirJsonParser` / `FhirJsonSerializer` from Firely SDK; assign `Guid.NewGuid()` id on create; increment `VersionId` on update
+    - Implement `ApplySearchFilters` using `EF.Functions.JsonContains` / raw SQL for JSONB predicates
+    - _Requirements: 1.7, 3.1–3.4, 10.1, 10.3_
+  - [ ]* 3.3 Write property test for Resource ID Uniqueness on Creation
+    - **Property 3: Resource ID Uniqueness on Creation**
+    - **Validates: Requirements 1.7**
+  - [ ]* 3.4 Write property test for Not-Found Returns Null from Repository
+    - **Property 9: Not-Found Returns 404 OperationOutcome** (repository layer: returns null)
+    - **Validates: Requirements 3.8, 13.8, 15.8, 16.8, 19.8**
+
+- [x] 4. Implement Firely SDK formatters and FHIR middleware
+  - [x] 4.1 Create `FhirJsonInputFormatter` and `FhirJsonOutputFormatter`
+    - Register `application/fhir+json` media type; use `FhirJsonParser` / `FhirJsonSerializer`
+    - _Requirements: 1.2, 1.3_
+  - [x] 4.2 Implement `FhirContentNegotiationMiddleware`
+    - Accept `application/fhir+json` (default) and `application/fhir+xml`; throw `UnsupportedMediaTypeException` for other `Accept` values
+    - _Requirements: 1.2, 1.3, 1.4_
+  - [x] 4.3 Implement `FhirExceptionMiddleware`
+    - Map all custom exceptions to correct HTTP status codes and `OperationOutcome` bodies per the HTTP Status Code Mapping table; never expose stack traces
+    - _Requirements: 12.1–12.4_
+  - [ ]* 4.4 Write unit tests for `FhirExceptionMiddleware`
+    - Test `ResourceNotFoundException` → 404, `FhirValidationException` → 422, `ScopeViolationException` → 403, `UnsupportedMediaTypeException` → 415, unhandled exception → 500 without stack trace
+    - _Requirements: 12.1–12.3_
+  - [ ]* 4.5 Write property test for Content Negotiation
+    - **Property 1: Content Negotiation**
+    - **Validates: Requirements 1.2, 1.3, 1.4**
+  - [ ]* 4.6 Write property test for All Error Responses Contain OperationOutcome
+    - **Property 27: All Error Responses Contain OperationOutcome**
+    - **Validates: Requirements 12.1**
+  - [ ]* 4.7 Write property test for Internal Errors Do Not Expose Stack Traces
+    - **Property 28: Internal Errors Do Not Expose Stack Traces**
+    - **Validates: Requirements 12.3**
+  - [ ]* 4.8 Write property test for ResourceType Mismatch Returns 400
+    - **Property 29: ResourceType Mismatch Returns 400**
+    - **Validates: Requirements 12.4**
+
+- [x] 5. Configure SMART on FHIR authentication and authorization
+  - [x] 5.1 Configure `JwtBearerDefaults` authentication in `Program.cs`
+    - Set `Authority`, `Audience`, `ValidateIssuerSigningKey = true`, `ValidateLifetime = true`, `ClockSkew = TimeSpan.Zero`
+    - _Requirements: 2.1, 2.2_
+  - [x] 5.2 Add authorization policies for `patient/*.read`, `user/*.read`, `system/*.read` scopes
+    - Register policies using `RequireClaim("scope", ...)` and wire `UseAuthentication` / `UseAuthorization` into the pipeline
+    - _Requirements: 2.3, 2.4_
+  - [x] 5.3 Implement `ScopeEnforcementFilter` action filter
+    - Throw `ScopeViolationException` when the required scope claim is absent from the token
+    - _Requirements: 2.3_
+  - [ ]* 5.4 Write property test for Authentication Failure Returns 401 OperationOutcome
+    - **Property 4: Authentication Failure Returns 401 OperationOutcome**
+    - **Validates: Requirements 2.1, 2.2**
+  - [ ]* 5.5 Write property test for Scope Violation Returns 403 OperationOutcome
+    - **Property 5: Scope Violation Returns 403 OperationOutcome**
+    - **Validates: Requirements 2.3**
+  - [ ]* 5.6 Write property test for Access Token Expiry Bound
+    - **Property 6: Access Token Expiry Bound**
+    - **Validates: Requirements 2.6**
+
+- [x] 6. Implement `AuditLoggingMiddleware` and `AuditService`
+  - [x] 6.1 Implement `AuditService` with `RecordAsync` and `QueryAsync`
+    - Build `AuditEvent` Firely resource from `AuditContext`; persist via `IFhirResourceRepository<AuditEvent>`; scope `QueryAsync` results to authorized patient population
+    - _Requirements: 11.1, 11.2, 11.4_
+  - [x] 6.2 Implement `AuditLoggingMiddleware`
+    - Intercept all requests to Patient, EOB, Claim, ClaimResponse endpoints; call `AuditService.RecordAsync` with client identity, resource type, resource id, action, and timestamp
+    - _Requirements: 11.1, 11.2_
+  - [ ]* 6.3 Write unit tests for `AuditService`
+    - Test that `RecordAsync` persists an `AuditEvent` with all required fields; test that `QueryAsync` filters by patient scope
+    - _Requirements: 11.1, 11.2, 11.4_
+  - [ ]* 6.4 Write property test for AuditEvent Created for Every PHI Interaction
+    - **Property 25: AuditEvent Created for Every PHI Interaction**
+    - **Validates: Requirements 11.1, 11.2**
+  - [ ]* 6.5 Write property test for AuditEvent Query Is Scoped to Authorized Patients
+    - **Property 26: AuditEvent Query Is Scoped to Authorized Patients**
+    - **Validates: Requirements 11.4**
+
+- [x] 7. Checkpoint — Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 8. Implement `PaginationService` and `CapabilityStatementBuilder`
+  - [x] 8.1 Implement `PaginationService` with `BuildSearchBundle` and `ResolvePage`
+    - Default page size 20, max 100; add `self`, `next`, `previous` Bundle links; encode/decode page tokens
+    - _Requirements: 10.1, 10.2_
+  - [x] 8.2 Implement `CapabilityStatementBuilder`
+    - Return `CapabilityStatement` with `fhirVersion = 4.0.1`, `format = ["application/fhir+json", "application/fhir+xml"]`, and REST components for all 14 resource types
+    - _Requirements: 1.1, 1.5_
+  - [ ]* 8.3 Write unit tests for `CapabilityStatementBuilder`
+    - Test `fhirVersion = 4.0.1` and `application/fhir+json` format present
+    - _Requirements: 1.1, 1.5_
+  - [ ]* 8.4 Write property test for Search Returns Bundle of Type Searchset
+    - **Property 7: Search Returns Bundle of Type Searchset**
+    - **Validates: Requirements 3.5, 10.5**
+  - [ ]* 8.5 Write property test for _count Parameter Respected
+    - **Property 21: _count Parameter Respected**
+    - **Validates: Requirements 10.1**
+  - [ ]* 8.6 Write property test for _count Capped at 100
+    - **Property 22: _count Capped at 100**
+    - **Validates: Requirements 10.1**
+  - [ ]* 8.7 Write property test for EOB Bundle Includes Pagination Links
+    - **Property 14: EOB Bundle Includes Pagination Links**
+    - **Validates: Requirements 7.3, 10.2**
+
+- [x] 9. Implement `FhirValidationService`
+  - [x] 9.1 Implement `FhirValidationService` using Firely SDK profile validation
+    - Validate resources against US Core, CARIN Blue Button, and PDEX Plan Net profile URLs; return `OperationOutcome`; implement `IsValid` to check for error-severity issues
+    - _Requirements: 3.6, 3.7, 4.6, 4.7, 5.5–5.7, 6.6, 6.7, 7.4, 7.5, 13.6, 13.7, 15.6, 15.7, 16.6, 16.7, 18.8, 18.9, 19.6, 19.7_
+  - [ ]* 9.2 Write property test for Profile Validation Rejects Invalid Resources with 422
+    - **Property 8: Profile Validation Rejects Invalid Resources with 422**
+    - **Validates: Requirements 3.6, 3.7, 4.6, 4.7, 5.5–5.7, 6.6, 6.7, 7.4, 7.5, 13.6, 13.7, 15.6, 15.7, 16.6, 16.7, 18.8, 18.9, 19.6, 19.7**
+
+- [x] 10. Implement `FhirControllerBase` and `MetadataController`
+  - [x] 10.1 Create `FhirControllerBase` with shared helper methods
+    - Implement `FhirNotFound`, `FhirValidationError`, `FhirCreated`, `FhirForbidden` returning correctly structured `IActionResult` responses
+    - _Requirements: 12.1_
+  - [x] 10.2 Implement `MetadataController` with `GET /metadata`
+    - Inject `ICapabilityStatementBuilder`; return `CapabilityStatement`; annotate `[AllowAnonymous]`
+    - _Requirements: 1.1, 1.5_
+  - [ ]* 10.3 Write property test for Unknown Route Returns 404 OperationOutcome
+    - **Property 2: Unknown Route Returns 404 OperationOutcome**
+    - **Validates: Requirements 1.6, 12.1**
+
+- [x] 11. Implement Patient, Organization, and Practitioner controllers
+  - [x] 11.1 Implement `PatientController` with read, search, create, update
+    - Support search params `_id`, `identifier`, `name`, `birthdate`, `gender`, `address-postalcode`; validate against US Core Patient profile; return 201 + `Location` header on create
+    - _Requirements: 3.1–3.9_
+  - [x] 11.2 Implement `OrganizationController` with read, search, create, update
+    - Support search params `_id`, `identifier`, `name`, `type`, `address-state`; validate against US Core Organization profile; include NPI identifier
+    - _Requirements: 4.1–4.8_
+  - [x] 11.3 Implement `PractitionerController` and `PractitionerRoleController` with read and search
+    - Support Practitioner search params `_id`, `identifier`, `name`, `specialty`; PractitionerRole params `practitioner`, `organization`, `role`, `specialty`; validate against US Core profiles
+    - _Requirements: 5.1–5.8_
+  - [ ]* 11.4 Write property test for Patient Resources Contain Identifier with System URI
+    - **Property 10: Patient Resources Contain Identifier with System URI**
+    - **Validates: Requirements 3.9**
+  - [ ]* 11.5 Write property test for NPI Identifier Present When Known
+    - **Property 11: NPI Identifier Present When Known**
+    - **Validates: Requirements 4.8, 5.8**
+  - [ ]* 11.6 Write property test for Resource Creation Returns 201 with Location Header
+    - **Property 12: Resource Creation Returns 201 with Location Header**
+    - **Validates: Requirements 6.8**
+
+- [x] 12. Implement Claim, ClaimResponse, and EOB controllers
+  - [x] 12.1 Implement `ClaimController` with read, search, create
+    - Support search params `_id`, `patient`, `provider`, `status`, `created`; validate `status` against allowed values; validate against FHIR R4 Claim base profile; return 201 + `Location` on create
+    - _Requirements: 6.1–6.9_
+  - [x] 12.2 Implement `ExplanationOfBenefitController` with read and search
+    - Support search params `_id`, `patient`, `provider`, `created`, `status`; validate against CARIN Blue Button EOB profile; enforce scope on patient access; include `item.adjudication` elements
+    - _Requirements: 7.1–7.7_
+  - [ ]* 12.3 Write property test for Claim Status Values Are Constrained
+    - **Property 13: Claim Status Values Are Constrained**
+    - **Validates: Requirements 6.9**
+  - [ ]* 12.4 Write property test for EOB Adjudication Elements Present
+    - **Property 15: EOB Adjudication Elements Present**
+    - **Validates: Requirements 7.6**
+
+- [x] 13. Implement Coverage, Encounter, Location, and RelatedPerson controllers
+  - [x] 13.1 Implement `CoverageController` with read, search, create, update
+    - Support search params `patient`, `subscriber`, `payor`, `status`, `period`, `_id`; validate against US Core Coverage profile; include `beneficiary`, `payor`, `class` elements
+    - _Requirements: 19.1–19.9_
+  - [x] 13.2 Implement `EncounterController` with read, search, create, update
+    - Support search params `patient`, `status`, `class`, `date`, `practitioner`, `location`, `_id`; validate against US Core Encounter profile; include `subject` and `status`
+    - _Requirements: 16.1–16.9_
+  - [x] 13.3 Implement `LocationController` with read, search, create, update
+    - Support search params `_id`, `name`, `address`, `address-city`, `address-state`, `address-postalcode`, `type`, `organization`; validate against US Core Location profile; include `managingOrganization` when known
+    - _Requirements: 13.1–13.9_
+  - [x] 13.4 Implement `RelatedPersonController` with read, search, create, update
+    - Support search params `patient`, `relationship`, `name`, `_id`; validate against US Core RelatedPerson profile; include `patient` reference and `relationship` coding
+    - _Requirements: 15.1–15.9_
+  - [ ]* 13.5 Write property test for Location managingOrganization Present When Known
+    - **Property 30: Location managingOrganization Present When Known**
+    - **Validates: Requirements 13.9**
+  - [ ]* 13.6 Write property test for RelatedPerson Contains Patient Reference and Relationship
+    - **Property 32: RelatedPerson Contains Patient Reference and Relationship**
+    - **Validates: Requirements 15.9**
+  - [ ]* 13.7 Write property test for Encounter Contains Subject and Status
+    - **Property 33: Encounter Contains Subject and Status**
+    - **Validates: Requirements 16.9**
+
+- [x] 14. Checkpoint — Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 15. Implement Payer-to-Payer and Preauthorization controllers
+  - [x] 15.1 Implement `PayerToPayerController` with `$member-match` and `$everything`
+    - `POST /Patient/$member-match`: return matched Patient or 422 OperationOutcome; `GET /Patient/{id}/$everything`: return Bundle with Patient, Coverage, EOB, clinical resources; support `_since` filter; require `system.read` scope
+    - _Requirements: 8.1–8.7_
+  - [x] 15.2 Implement `PreauthController` with `$submit` and `$inquire`
+    - `POST /Claim/$submit`: validate bundle, return ClaimResponse with `outcome` of `queued`/`complete`/`error`; `POST /Claim/$inquire`: return current ClaimResponse status; validate required clinical documentation references
+    - _Requirements: 9.1–9.8_
+  - [ ]* 15.3 Write property test for Member Match Returns Patient or 422
+    - **Property 16: Member Match Returns Patient or 422**
+    - **Validates: Requirements 8.3**
+  - [ ]* 15.4 Write property test for $everything Bundle Contains Required Resource Types
+    - **Property 17: $everything Bundle Contains Required Resource Types**
+    - **Validates: Requirements 8.5**
+  - [ ]* 15.5 Write property test for $everything _since Filters by LastUpdated
+    - **Property 18: $everything _since Filters by LastUpdated**
+    - **Validates: Requirements 8.6**
+  - [ ]* 15.6 Write property test for Preauth ClaimResponse Outcome Is Valid
+    - **Property 19: Preauth ClaimResponse Outcome Is Valid**
+    - **Validates: Requirements 9.3**
+  - [ ]* 15.7 Write property test for Preauth Decision Updates Disposition
+    - **Property 20: Preauth Decision Updates Disposition**
+    - **Validates: Requirements 9.5**
+
+- [x] 16. Implement TerminologyService with Redis cache and TerminologyController
+  - [x] 16.1 Implement `TerminologyService` with `LookupAsync`, `ValidateCodeAsync`, `ExpandAsync`, `TranslateAsync`
+    - Support SNOMED CT, LOINC, ICD-10, CPT, RxNorm; throw `UnsupportedCodeSystemException` for unknown systems; cache results in Redis with 24-hour TTL using `StackExchange.Redis`
+    - _Requirements: 17.1–17.9_
+  - [x] 16.2 Implement `TerminologyController` with `GET /CodeSystem/$lookup`, `GET /ValueSet/$validate-code`, `GET /ValueSet/$expand`, `GET /ConceptMap/$translate`
+    - Wire to `ITerminologyService`; return `Parameters` or `ValueSet` Firely resources
+    - _Requirements: 17.1–17.9_
+  - [ ]* 16.3 Write unit tests for `TerminologyService`
+    - Test unsupported system throws `UnsupportedCodeSystemException`; test Redis cache hit skips DB call
+    - _Requirements: 17.4, 17.8_
+  - [ ]* 16.4 Write property test for Terminology Operations Return Correct Parameters Structure
+    - **Property 34: Terminology Operations Return Correct Parameters Structure**
+    - **Validates: Requirements 17.5, 17.6, 17.7**
+
+- [x] 17. Implement ProviderDirectoryController
+  - [x] 17.1 Implement `ProviderDirectoryController` with read and search for Practitioner, Organization, Location, PractitionerRole, OrganizationAffiliation, HealthcareService
+    - Support proximity `near` search on Location (order by distance); support `insurance-plan` filter on PractitionerRole; validate resources against PDEX Plan Net profiles
+    - _Requirements: 18.1–18.10_
+  - [ ]* 17.2 Write property test for Provider Directory Proximity Search Orders by Distance
+    - **Property 35: Provider Directory Proximity Search Orders by Distance**
+    - **Validates: Requirements 18.7**
+
+- [x] 18. Implement ReportController and year-end report logic
+  - [x] 18.1 Implement `ReportController` with `GET /Report/year-end`
+    - Accept `member` and `year` query params; aggregate Claim and EOB data for the calendar year; return structured JSON by default or FHIR Bundle of type `document` when `format=fhir-bundle`; return 200 with zero amounts when no data; return 404 when member not found; enforce SMART scope; create AuditEvent for every request
+    - _Requirements: 14.1–14.8_
+  - [ ]* 18.2 Write property test for Year-End Report Format Dispatch
+    - **Property 31: Year-End Report Format Dispatch**
+    - **Validates: Requirements 14.2, 14.3, 14.4**
+
+- [x] 19. Wire everything together in `Program.cs` and add EF Core migrations
+  - Register all repositories, services, middleware, formatters, and controllers in `Program.cs`; add `FhirDbContext` with Npgsql connection string from configuration; create initial EF Core migration; register Redis `IDatabase` from `IConnectionMultiplexer`
+  - _Requirements: 1.1–1.7, 2.1–2.6_
+
+- [ ] 20. Add FsCheck `FhirArbitraries` generators and wire property test projects
+  - Implement `FhirArbitraries` with `Arbitrary<Patient>`, `Arbitrary<SearchParameters>`, and other Firely generators needed by property tests; configure `WebApplicationFactory<Program>` integration test host with `Testcontainers.PostgreSql`
+  - _Requirements: all_
+
+- [x] 21. Final checkpoint — Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 22. Implement Clinical Data Controllers (Condition, AllergyIntolerance, MedicationRequest, Immunization, Procedure, DiagnosticReport)
+  - [ ] 22.1 Implement `ConditionController` with read, search, create, update
+    - Route: `[controller]`; search params: `patient`, `category`, `clinical-status`, `onset-date`, `_count`, `_sort`
+    - Validate against US Core Condition profile (`http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns`)
+    - Return 404 OperationOutcome for non-existent resources; return 422 OperationOutcome on validation failure
+    - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.25, 20.26_
+  - [ ] 22.2 Implement `AllergyIntoleranceController` with read, search, create, update
+    - Route: `[controller]`; search params: `patient`, `clinical-status`, `_count`, `_sort`
+    - Validate against US Core AllergyIntolerance profile (`http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance`)
+    - _Requirements: 20.5, 20.6, 20.7, 20.8, 20.25, 20.26_
+  - [ ] 22.3 Implement `MedicationRequestController` with read, search, create, update
+    - Route: `[controller]`; search params: `patient`, `status`, `intent`, `_count`, `_sort`
+    - Validate against US Core MedicationRequest profile (`http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest`)
+    - _Requirements: 20.9, 20.10, 20.11, 20.12, 20.25, 20.26_
+  - [ ] 22.4 Implement `ImmunizationController` with read, search, create, update
+    - Route: `[controller]`; search params: `patient`, `date`, `status`, `_count`, `_sort`
+    - Validate against US Core Immunization profile (`http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization`)
+    - _Requirements: 20.13, 20.14, 20.15, 20.16, 20.25, 20.26_
+  - [ ] 22.5 Implement `ProcedureController` with read, search, create, update
+    - Route: `[controller]`; search params: `patient`, `date`, `status`, `code`, `_count`, `_sort`
+    - Validate against US Core Procedure profile (`http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure`)
+    - _Requirements: 20.17, 20.18, 20.19, 20.20, 20.25, 20.26_
+  - [ ] 22.6 Implement `DiagnosticReportController` with read, search, create, update
+    - Route: `[controller]`; search params: `patient`, `category`, `date`, `code`, `_count`, `_sort`
+    - Validate against US Core DiagnosticReport profile (`http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note`)
+    - _Requirements: 20.21, 20.22, 20.23, 20.24, 20.25, 20.26_
+  - [ ]* 22.7 Write unit tests for all six clinical data controllers
+    - Test read returns 404 for non-existent id; test search returns Bundle of type `searchset`; test create validates against US Core profile and returns 422 on failure
+    - _Requirements: 20.3, 20.4, 20.25, 20.26_
+
+- [ ] 23. Register clinical data repositories and controllers in `Program.cs`
+  - Register `IFhirResourceRepository<Condition>`, `IFhirResourceRepository<AllergyIntolerance>`, `IFhirResourceRepository<MedicationRequest>`, `IFhirResourceRepository<Immunization>`, `IFhirResourceRepository<Procedure>`, `IFhirResourceRepository<DiagnosticReport>` in DI container
+  - Update `CapabilityStatementBuilder` to include Condition, AllergyIntolerance, MedicationRequest, Immunization, Procedure, DiagnosticReport REST components
+  - _Requirements: 20.1–20.26_
+
+- [ ] 24. Checkpoint — Ensure clinical data controllers compile and tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 25. Implement Bulk Export Service and Controller
+  - [ ] 25.1 Create `BulkExportJob`, `BulkExportOutputFile`, `BulkExportStatus`, `BulkExportLevel` models in `HealthcareFhirApi.Core/Models/`
+    - Create `BulkExportJobEntity` entity in `HealthcareFhirApi.Infrastructure/Entities/`
+    - Add `DbSet<BulkExportJobEntity>` to `TenantDbContext` with indexes on `TenantId` and `Status`
+    - _Requirements: 21.1–21.3, 21.8_
+  - [ ] 25.2 Implement `BulkExportService` with `StartExportAsync`, `GetJobStatusAsync`, `DownloadFileAsync`
+    - Validate `_type` parameter against supported resource types; throw `UnsupportedResourceTypeException` for invalid types
+    - Filter resources by `_since` (LastUpdated) and `_type` (ResourceType); write NDJSON output (one JSON resource per line) to blob storage
+    - Default `_outputFormat` to `application/fhir+ndjson`; scope all queries by `TenantContext.TenantId`
+    - _Requirements: 21.4, 21.5, 21.6, 21.7, 21.12_
+  - [ ] 25.3 Implement `BulkExportController` with system, patient, and group-level `$export` endpoints and poll endpoint
+    - `POST /$export`, `POST /Patient/$export`, `POST /Group/{id}/$export`: return 202 with `Content-Location` header
+    - `GET /$export-poll/{jobId}`: return 202 with `X-Progress` while in-progress; return 200 with `transactionTime`, `request`, `requiresAccessToken`, `output` array when complete
+    - Require `system.read` authorization policy; require SMART Backend Services authentication
+    - _Requirements: 21.1–21.12_
+  - [ ]* 25.4 Write property test for Bulk Export Accepted Returns 202 with Content-Location
+    - **Property 39: Bulk Export Accepted Returns 202 with Content-Location**
+    - **Validates: Requirements 21.8**
+  - [ ]* 25.5 Write property test for Bulk Export Completed Response Structure
+    - **Property 40: Bulk Export Completed Response Structure**
+    - **Validates: Requirements 21.10**
+  - [ ]* 25.6 Write property test for Bulk Export Unsupported _type Returns 400
+    - **Property 41: Bulk Export Unsupported _type Returns 400**
+    - **Validates: Requirements 21.12**
+  - [ ]* 25.7 Write property test for Bulk Export _since Filters by LastUpdated
+    - **Property 36: Bulk Export _since Filters by LastUpdated**
+    - **Validates: Requirements 21.4**
+  - [ ]* 25.8 Write property test for Bulk Export NDJSON Format Validity
+    - **Property 38: Bulk Export NDJSON Format Validity**
+    - **Validates: Requirements 21.7**
+
+- [ ] 26. Implement SMART App Launch Configuration Controller
+  - [ ] 26.1 Create `SmartConfiguration` model in `HealthcareFhirApi.Core/Models/`
+    - Define properties: `AuthorizationEndpoint`, `TokenEndpoint`, `ScopesSupported`, `CodeChallengeMethodsSupported`, `GrantTypesSupported`, `Capabilities`
+    - _Requirements: 22.2–22.6, 22.10_
+  - [ ] 26.2 Implement `SmartConfigurationController` with `GET /.well-known/smart-configuration`
+    - Annotate `[AllowAnonymous]`; return `application/json` content type
+    - Populate from `IConfiguration` keys: `SmartAuth:AuthorizationEndpoint`, `SmartAuth:TokenEndpoint`
+    - Include `scopes_supported`: `openid`, `fhirUser`, `launch`, `launch/patient`, `patient/*.read`, `user/*.read`, `system/*.read`, `offline_access`
+    - Include `code_challenge_methods_supported`: `["S256"]`
+    - Include `grant_types_supported`: `["authorization_code", "client_credentials"]`
+    - Include `capabilities`: `["launch-ehr", "launch-standalone", "client-public", "client-confidential-symmetric", "sso-openid-connect"]`
+    - _Requirements: 22.1–22.10_
+  - [ ]* 26.3 Write property test for SMART Configuration Contains All Required Fields
+    - **Property 42: SMART Configuration Contains All Required Fields**
+    - **Validates: Requirements 22.2, 22.3, 22.4, 22.5, 22.6, 22.10**
+  - [ ]* 26.4 Write property test for SMART Configuration Returns application/json Content-Type
+    - **Property 43: SMART Configuration Returns application/json Content-Type**
+    - **Validates: Requirements 22.9**
+
+- [ ] 27. Implement Consent Service and Controller with Payer-to-Payer integration
+  - [ ] 27.1 Implement `ConsentService` with `HasActiveConsentAsync` and `ValidateConsentRequiredFieldsAsync`
+    - `HasActiveConsentAsync`: query `IFhirResourceRepository<Consent>` for an `active` Consent for the given patient
+    - `ValidateConsentRequiredFieldsAsync`: check that `scope`, `patient` reference, and `period` are present; throw `FhirValidationException` with OperationOutcome if missing
+    - _Requirements: 23.5, 23.6, 23.8_
+  - [ ] 27.2 Implement `ConsentController` with read, search, create, update
+    - Route: `[controller]`; search params: `patient`, `status`, `category`, `period`, `_count`, `_sort`
+    - Call `ConsentService.ValidateConsentRequiredFieldsAsync` on create; support `status` values `active`, `inactive`, `rejected`, `entered-in-error`
+    - Return 404 for non-existent resources; return searchset Bundle for search results
+    - _Requirements: 23.1–23.7, 23.10, 23.11_
+  - [ ] 27.3 Update `PayerToPayerController` to enforce consent check before data exchange
+    - Inject `IConsentService`; call `HasActiveConsentAsync` before `$everything` and `$member-match` operations
+    - Throw `ConsentRequiredException` (mapped to 403 OperationOutcome) if no active consent exists
+    - Add `ConsentRequiredException` to `HealthcareFhirApi.Core/Exceptions/` and map in `FhirExceptionMiddleware`
+    - _Requirements: 23.8, 23.9_
+  - [ ]* 27.4 Write property test for Consent Requires scope, patient, and period
+    - **Property 44: Consent Requires scope, patient, and period**
+    - **Validates: Requirements 23.5, 23.6**
+  - [ ]* 27.5 Write property test for Consent Status Values Are Constrained
+    - **Property 45: Consent Status Values Are Constrained**
+    - **Validates: Requirements 23.7**
+  - [ ]* 27.6 Write property test for Payer-to-Payer Exchange Gated by Active Consent
+    - **Property 46: Payer-to-Payer Exchange Gated by Active Consent**
+    - **Validates: Requirements 23.8, 23.9**
+
+- [ ] 28. Implement Multi-Tenant Architecture
+  - [ ] 28.1 Create `TenantContext` model, `TenantEntity`, `ApiKeyEntity`, and `TenantDbContext`
+    - `TenantContext`: scoped per-request with `TenantId`, `OrganizationName`, `IsActive`, `SmartAuthority`, `DatabaseConnectionString`
+    - `TenantEntity`: `Id`, `OrganizationName`, `ContactEmail`, `PlanTier`, `IsActive`, `SmartAuthority`, `DatabaseConnectionString`, `RateLimitRequestsPerSecond`, `RateLimitBurstSize`, `CreatedAt`, `UpdatedAt`
+    - `ApiKeyEntity`: `Id`, `TenantId`, `KeyHash` (SHA-256), `KeyPrefix`, `IsRevoked`, `CreatedAt`, `RevokedAt`
+    - `TenantDbContext` with `DbSet<TenantEntity>`, `DbSet<ApiKeyEntity>`, `DbSet<BulkExportJobEntity>`; unique index on `OrganizationName`; unique index on `KeyHash`
+    - _Requirements: 24.1, 24.5, 24.7, 24.8_
+  - [ ] 28.2 Implement `TenantService` with tenant resolution, provisioning, and API key management
+    - `ResolveFromApiKeyAsync`: lookup by SHA-256 hash of API key; `ResolveFromSubdomainAsync`: lookup by subdomain
+    - `ProvisionAsync`: create tenant with isolated config, return `TenantEntity`; `DeactivateAsync`: set `IsActive = false`
+    - `CreateApiKeyAsync`: generate key, store SHA-256 hash, return plaintext key; `RevokeApiKeyAsync`: set `IsRevoked = true`
+    - `SetRateLimitAsync`: update `RateLimitRequestsPerSecond` and `RateLimitBurstSize`
+    - _Requirements: 24.2, 24.5, 24.7, 24.8, 25.6, 25.8_
+  - [ ] 28.3 Implement `TenantResolutionMiddleware`
+    - Resolve tenant from: (1) `X-Api-Key` header → `ResolveFromApiKeyAsync`, (2) JWT `tenant_id` claim → `GetByIdAsync`, (3) subdomain → `ResolveFromSubdomainAsync`
+    - Skip resolution for `[AllowAnonymous]` endpoints; throw `TenantResolutionException` if unresolvable; throw `TenantDeactivatedException` if tenant is inactive
+    - Populate scoped `TenantContext` with resolved tenant data
+    - _Requirements: 24.2, 24.3, 24.4_
+  - [ ] 28.4 Add `TenantId` column to `FhirResourceEntity` and scope `FhirResourceRepository` queries by `TenantContext.TenantId`
+    - Update `FhirResourceEntity` with `TenantId` property; update `FhirDbContext` composite key to include `TenantId`
+    - Inject `TenantContext` into `FhirResourceRepository`; filter all `GetByIdAsync`, `SearchAsync`, `CreateAsync`, `UpdateAsync` by `_tenantContext.TenantId`
+    - _Requirements: 24.1, 24.6, 24.9_
+  - [ ] 28.5 Implement `RateLimitingMiddleware`
+    - Enforce per-tenant rate limits using sliding window counter in Redis; throw `RateLimitExceededException` when exceeded
+    - Add `RateLimitExceededException` to exceptions and map to 429 in `FhirExceptionMiddleware` with `Retry-After: 1` header
+    - _Requirements: 25.7_
+  - [ ]* 28.6 Write property test for Cross-Tenant Data Isolation
+    - **Property 47: Cross-Tenant Data Isolation**
+    - **Validates: Requirements 24.1, 24.6, 24.9**
+  - [ ]* 28.7 Write property test for Unresolvable Tenant Returns 401
+    - **Property 48: Unresolvable Tenant Returns 401**
+    - **Validates: Requirements 24.2, 24.4**
+  - [ ]* 28.8 Write property test for Tenant Provisioning Returns Tenant Configuration
+    - **Property 49: Tenant Provisioning Returns Tenant Configuration**
+    - **Validates: Requirements 24.8**
+
+- [ ] 29. Checkpoint — Ensure multi-tenant, bulk export, SMART config, and consent tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 30. Implement Admin Portal Controller
+  - [ ] 30.1 Implement `AdminController` with tenant CRUD, metrics, rate limiting, and API key management
+    - Route: `admin`; require `admin` authorization policy
+    - `POST /admin/tenants`: create tenant with `organizationName`, `contactEmail`, `planTier`; return created tenant entity
+    - `PUT /admin/tenants/{id}`: update tenant configuration, contact info, plan tier
+    - `PATCH /admin/tenants/{id}/deactivate`: set tenant inactive; all subsequent FHIR requests for that tenant return 403
+    - `GET /admin/tenants/{id}/metrics`: return request count, error rate, average latency for configurable time period
+    - `PUT /admin/tenants/{id}/rate-limit`: configure `requestsPerSecond` and `burstSize`
+    - `POST /admin/tenants/{id}/api-keys`: create new API key, return plaintext key
+    - `DELETE /admin/tenants/{id}/api-keys/{keyId}`: revoke API key; subsequent requests with that key return 401
+    - _Requirements: 25.1–25.9_
+  - [ ] 30.2 Implement `MetricsService` with `GetMetricsAsync`, `GenerateComplianceReportAsync`, `RecordRequestAsync`
+    - `RecordRequestAsync`: persist per-request metrics (tenant, endpoint, status code, latency) for aggregation
+    - `GetMetricsAsync`: aggregate request count, error rate, average latency for a tenant over a date range
+    - `GenerateComplianceReportAsync`: compute uptime percentage, per-endpoint metrics, overall error rate
+    - _Requirements: 25.5, 26.2, 26.3_
+  - [ ]* 30.3 Write property test for Deactivated Tenant Returns 403
+    - **Property 50: Deactivated Tenant Returns 403**
+    - **Validates: Requirements 25.4**
+  - [ ]* 30.4 Write property test for Rate Limit Exceeded Returns 429
+    - **Property 51: Rate Limit Exceeded Returns 429**
+    - **Validates: Requirements 25.7**
+  - [ ]* 30.5 Write property test for Revoked API Key Returns 401
+    - **Property 52: Revoked API Key Returns 401**
+    - **Validates: Requirements 25.9**
+
+- [ ] 31. Implement Compliance Report Controller
+  - [ ] 31.1 Implement `ComplianceReportController` with `GET /admin/compliance/report`
+    - Route: `admin/compliance`; require `admin` authorization policy
+    - Accept `tenant`, `start-date`, `end-date` as required query params; optional `format` param (`json`, `pdf`, `csv`)
+    - Return JSON by default with `uptimePercentage`, `endpointMetrics` (array of `endpoint`, `requestCount`, `averageLatencyMs`, `errorRatePercent`), `totalRequests`, `overallErrorRate`
+    - Return `application/pdf` when `format=pdf`; return `text/csv` when `format=csv`
+    - Return 200 with zero-data report when no metrics exist for the tenant/date range
+    - Return 404 OperationOutcome when tenant identifier is unknown
+    - _Requirements: 26.1–26.9_
+  - [ ] 31.2 Create `ComplianceReportResult` model in `HealthcareFhirApi.Core/Models/`
+    - Properties: `UptimePercentage`, `EndpointMetrics` (list of `EndpointMetric`), `TotalRequests`, `OverallErrorRate`
+    - `EndpointMetric`: `Endpoint`, `RequestCount`, `AverageLatencyMs`, `ErrorRatePercent`
+    - _Requirements: 26.2, 26.3_
+  - [ ]* 31.3 Write property test for Compliance Report Contains Required Metrics
+    - **Property 53: Compliance Report Contains Required Metrics**
+    - **Validates: Requirements 26.2, 26.3**
+  - [ ]* 31.4 Write property test for Compliance Report Format Dispatch
+    - **Property 54: Compliance Report Format Dispatch**
+    - **Validates: Requirements 26.4, 26.5, 26.6**
+  - [ ]* 31.5 Write property test for Compliance Report Role Restriction
+    - **Property 55: Compliance Report Role Restriction**
+    - **Validates: Requirements 26.9**
+
+- [ ] 32. Wire new components into `Program.cs` and update middleware pipeline
+  - Register all new services in DI: `IBulkExportService`, `IConsentService`, `ITenantService`, `IMetricsService`
+  - Register `TenantContext` as scoped; register `TenantDbContext` with SQL Server connection string
+  - Register `IFhirResourceRepository<Consent>` in DI container
+  - Add `TenantResolutionMiddleware` and `RateLimitingMiddleware` to the middleware pipeline (before authentication)
+  - Update `CapabilityStatementBuilder` to include Consent, Bulk Export, and all new resource types
+  - Add `TenantResolutionException`, `TenantDeactivatedException`, `RateLimitExceededException`, `UnsupportedResourceTypeException`, `ConsentRequiredException` mappings in `FhirExceptionMiddleware`
+  - _Requirements: 20.1–26.9_
+
+- [ ] 33. Final checkpoint — Ensure all tests pass for Requirements 20–26
+  - Ensure all tests pass, ask the user if questions arise.
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for a faster MVP
+- Each task references specific requirements for traceability
+- Property tests use FsCheck with `[Property(MaxTest = 100)]` minimum; each test file includes `// Feature: healthcare-fhir-api` header
+- Unit tests use xUnit `[Fact]` / `[Theory]`; integration tests use `WebApplicationFactory<Program>` + Testcontainers
+
+
+---
+
+## Phase 2: SaaS Production Readiness
+
+- [ ] 34. Docker Containerization
+  - [ ] 34.1 Create `Dockerfile` for the API project
+    - Multi-stage build: SDK image for build, runtime image for production
+    - Expose port 8080; set `ASPNETCORE_URLS=http://+:8080`
+    - Copy published output only (no source code in production image)
+  - [ ] 34.2 Create `docker-compose.yml` for local development
+    - Services: `api` (the FHIR API), `sqlserver` (SQL Server 2022), `redis` (Redis 7)
+    - Mount volumes for SQL Server data persistence
+    - Wire connection strings via environment variables
+  - [ ] 34.3 Create `docker-compose.prod.yml` for production-like deployment
+    - Use Azure SQL or managed SQL Server connection string
+    - Use managed Redis (Azure Cache for Redis) connection string
+    - Health check endpoints for container orchestration
+  - [ ] 34.4 Add `.dockerignore` to exclude bin, obj, node_modules, .git
+
+- [ ] 35. Cloud Deployment (Azure)
+  - [ ] 35.1 Create Azure Resource Group and App Service Plan
+    - Document required Azure resources: App Service, Azure SQL, Azure Cache for Redis
+    - Create ARM template or Bicep file for infrastructure-as-code
+  - [ ] 35.2 Set up Azure SQL Database
+    - Create database with appropriate tier (S1 or higher for production)
+    - Run schema creation scripts (Resources, Tenants, ApiKeys, BulkExportJobs, MetricsRequests tables)
+    - Configure firewall rules for App Service access
+  - [ ] 35.3 Set up Azure Cache for Redis
+    - Create Basic or Standard tier instance
+    - Configure connection string in App Service configuration
+  - [ ] 35.4 Deploy API to Azure App Service
+    - Configure App Service with .NET 10 runtime
+    - Set environment variables: ConnectionStrings__FhirDb, ConnectionStrings__Redis, SmartAuth__Authority, SmartAuth__Audience
+    - Enable HTTPS only; configure custom domain if available
+  - [ ] 35.5 Configure health check endpoint
+    - Add `GET /health` endpoint returning 200 with DB and Redis connectivity status
+    - Wire to Azure App Service health check monitoring
+
+- [ ] 36. CI/CD Pipeline
+  - [ ] 36.1 Create GitHub Actions workflow for build and test
+    - Trigger on push to `main` and pull requests
+    - Steps: restore, build, run unit tests
+    - Cache NuGet packages for faster builds
+  - [ ] 36.2 Create GitHub Actions workflow for deployment
+    - Trigger on push to `main` (after tests pass)
+    - Build Docker image, push to Azure Container Registry (or Docker Hub)
+    - Deploy to Azure App Service using container image
+  - [ ] 36.3 Add environment-specific configuration
+    - Create `appsettings.Production.json` with placeholder connection strings
+    - Document required environment variables for each deployment target
+
+- [ ] 37. Tenant Onboarding Automation
+  - [ ] 37.1 Create `POST /admin/tenants/onboard` endpoint
+    - Accept: organizationName, contactEmail, planTier
+    - Auto-create tenant, generate API key, return onboarding package (tenantId, apiKey, baseUrl, swagger URL)
+    - Send welcome email with API key and getting-started guide (stub)
+  - [ ] 37.2 Create tenant onboarding CLI tool
+    - PowerShell script or dotnet tool that calls the onboarding endpoint
+    - Output: tenant ID, API key, curl examples for testing
+  - [ ] 37.3 Create sample data seeder for new tenants
+    - Seed 10 sample Patients, 5 Organizations, 5 Practitioners, 10 Claims, 10 EOBs
+    - Callable via `POST /admin/tenants/{id}/seed` (admin only)
+    - Helps new customers test their integration immediately
+
+- [ ] 38. Self-Service Tenant Portal (Web UI)
+  - [ ] 38.1 Create a simple HTML/JS admin dashboard
+    - Login with API key
+    - View tenant info, API usage metrics, error rates
+    - Generate/revoke API keys
+    - View compliance report
+  - [ ] 38.2 Create tenant API documentation page
+    - Auto-generated from Swagger/OpenAPI spec
+    - Include authentication guide (how to use X-Api-Key header)
+    - Include sample requests for each FHIR resource type
+    - Include bulk import guide with NDJSON format examples
+
+- [ ] 39. Security Hardening
+  - [ ] 39.1 Add HTTPS enforcement and HSTS headers
+    - Redirect HTTP to HTTPS in production
+    - Add `Strict-Transport-Security` header
+  - [ ] 39.2 Add request logging and audit trail
+    - Log all API requests with tenant ID, endpoint, status code, latency
+    - Store in MetricsRequests table (already implemented)
+    - Add log export endpoint for compliance audits
+  - [ ] 39.3 Add API key rotation support
+    - Allow tenants to have multiple active API keys
+    - Grace period: old key works for 30 days after new key is generated
+    - Already supported — ApiKeys table allows multiple keys per tenant
+  - [ ] 39.4 Add input sanitization and request size limits
+    - Limit request body size to 50MB (configurable per tenant)
+    - Validate all JSON input against FHIR schema before processing
+    - Prevent SQL injection via parameterized queries (EF Core handles this)
+  - [ ] 39.5 Add CORS configuration
+    - Allow configurable origins per tenant
+    - Default: deny all cross-origin requests
+    - Admin API: restrict to internal origins only
+
+- [ ] 40. Monitoring and Alerting
+  - [ ] 40.1 Add Application Insights or Serilog structured logging
+    - Log to Azure Application Insights (or Seq for local dev)
+    - Include tenant ID, request ID, and correlation ID in all log entries
+  - [ ] 40.2 Add uptime monitoring
+    - Health check endpoint polled every 60 seconds
+    - Alert on 3 consecutive failures
+  - [ ] 40.3 Add per-tenant usage dashboards
+    - Expose metrics via `GET /admin/tenants/{id}/metrics` (already implemented)
+    - Add daily/weekly/monthly aggregation views
+
+- [ ] 41. Documentation and Sales Materials
+  - [ ] 41.1 Create API getting-started guide (Markdown)
+    - Step 1: Receive API key from admin
+    - Step 2: Test with `GET /metadata`
+    - Step 3: Search patients with `GET /Patient`
+    - Step 4: Create a patient with `POST /Patient`
+    - Step 5: Bulk import with `POST /$import`
+  - [ ] 41.2 Create FHIR resource reference guide
+    - Sample JSON for each of the 26+ resource types
+    - Search parameter reference for each endpoint
+    - Error code reference (400, 401, 403, 404, 415, 422, 429, 500)
+  - [ ] 41.3 Create one-page product sales sheet (PDF-ready Markdown)
+    - CMS compliance features
+    - Multi-tenant architecture highlights
+    - Pricing tiers
+    - Contact information
+  - [ ] 41.4 Create 15-minute product demo script
+    - Walkthrough: create tenant → generate API key → create patient → search → bulk import → compliance report
+
+- [ ] 42. Production Launch Checklist
+  - [ ] 42.1 Verify all FHIR endpoints return correct responses
+    - Test each of the 26+ resource types with create, read, search, update
+    - Test bulk import with 1000+ records
+    - Test bulk export
+  - [ ] 42.2 Load testing
+    - Simulate 100 concurrent users per tenant
+    - Verify rate limiting works correctly
+    - Measure p95 latency under load
+  - [ ] 42.3 Security review
+    - Verify tenant data isolation (tenant A cannot see tenant B's data)
+    - Verify deactivated tenants get 403
+    - Verify revoked API keys get 401
+    - Verify rate limiting returns 429 with Retry-After header
+  - [ ] 42.4 Seed production database
+    - Create initial admin tenant
+    - Generate admin API key
+    - Verify all tables exist with correct schema
+  - [ ] 42.5 Go live
+    - Point custom domain to Azure App Service
+    - Enable SSL certificate
+    - Monitor logs for first 24 hours
+    - Onboard first customer

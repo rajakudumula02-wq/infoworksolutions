@@ -1,0 +1,168 @@
+{
+  "resourceType": "ClaimResponse",
+  "id": "preauth-resp-001",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-claimresponse"
+    ]
+  },
+  "status": "active",
+  "type": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+        "code": "professional",
+        "display": "Professional"
+      }
+    ]
+  },
+  "use": "preauthorization",
+  "patient": {
+    "reference": "Patient/123",
+    "display": "Amy V. Baxter"
+  },
+  "created": "2026-04-06",
+  "insurer": {
+    "reference": "Organization/acme-payer",
+    "display": "Acme Health Plan"
+  },
+  "request": {
+    "reference": "Claim/preauth-001"
+  },
+  "outcome": "queued",
+  "disposition": "Prior authorization request received and queued for review.",
+  "preAuthRef": "PA-2026-04-001",
+  "preAuthPeriod": {
+    "start": "2026-04-06",
+    "end": "2026-10-06"
+  },
+  "insurance": [
+    {
+      "sequence": 1,
+      "focal": true,
+      "coverage": {
+        "reference": "Coverage/COV1",
+        "display": "PPO — Acme Health Plan"
+      }
+    }
+  ],
+  "item": [
+    {
+      "itemSequence": 1,
+      "adjudication": [
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASSupportingInfoType",
+                "code": "pended",
+                "display": "Pended"
+              }
+            ]
+          }
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-reviewAction",
+          "extension": [
+            {
+              "url": "number",
+              "valueString": "AUTH-2026-MAMMO-001"
+            },
+            {
+              "url": "http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-reviewActionCode",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASReviewActionCode",
+                    "code": "A4",
+                    "display": "Pending"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "itemSequence": 2,
+      "adjudication": [
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASSupportingInfoType",
+                "code": "pended",
+                "display": "Pended"
+              }
+            ]
+          }
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-reviewAction",
+          "extension": [
+            {
+              "url": "number",
+              "valueString": "AUTH-2026-DME-001"
+            },
+            {
+              "url": "http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-reviewActionCode",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASReviewActionCode",
+                    "code": "A4",
+                    "display": "Pending"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "extracted": {
+    "memberId": "123",
+    "memberName": "Amy V. Baxter",
+    "memberCoverageId": "COV1",
+    "coverageType": "PPO",
+    "coveragePayer": "Acme Health Plan",
+    "subscriberId": "888009335",
+    "providerId": "PractitionerRole/ABC",
+    "providerName": "Dr. Jones",
+    "insurerRef": "Organization/acme-payer",
+    "preAuthRef": "PA-2026-04-001",
+    "outcome": "queued",
+    "items": [
+      {
+        "sequence": 1,
+        "procedureCode": "726551006",
+        "procedureSystem": "http://snomed.info/sct",
+        "procedureDisplay": "Contrast enhanced spectral mammography (Procedure)",
+        "diagnosisCode": "Z12.31",
+        "diagnosisDisplay": "Encounter for screening mammogram",
+        "servicedDate": "2026-04-15",
+        "placeOfService": "11 — Office",
+        "reviewAction": "A4 — Pending",
+        "authNumber": "AUTH-2026-MAMMO-001"
+      },
+      {
+        "sequence": 2,
+        "procedureCode": "E0431",
+        "procedureSystem": "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+        "procedureDisplay": "Portable gaseous oxygen system, rental",
+        "diagnosisCode": "J96.01",
+        "diagnosisDisplay": "Acute respiratory failure with hypoxia",
+        "servicedPeriod": "2026-04-15 to 2026-07-15",
+        "placeOfService": "12 — Home",
+        "reviewAction": "A4 — Pending",
+        "authNumber": "AUTH-2026-DME-001"
+      }
+    ]
+  }
+}

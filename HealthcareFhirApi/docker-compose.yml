@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ConnectionStrings__FhirDb=Server=sqlserver;Database=FhirDb;User Id=sa;Password=FhirApi@2026!;TrustServerCertificate=True
+      - ConnectionStrings__Redis=redis:6379,abortConnect=false
+      - SmartAuth__Authority=https://your-auth-server/.well-known/openid-configuration
+      - SmartAuth__Audience=fhir-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=FhirApi@2026!
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "FhirApi@2026!" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  sqldata:

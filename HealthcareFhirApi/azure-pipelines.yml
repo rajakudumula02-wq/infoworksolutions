@@ -1,0 +1,81 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - HealthcareFhirApi/**
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - HealthcareFhirApi/**
+
+variables:
+  dotnetVersion: '10.0.x'
+  buildConfiguration: 'Release'
+  azureSubscription: 'HealthcareFhirApi-ServiceConnection'
+  webAppName: 'fhirapi-prod-api'
+  workingDirectory: 'HealthcareFhirApi'
+
+stages:
+  # ── CI: Build & Test ─────────────────────────────────────────────────────
+  - stage: Build
+    displayName: Build & Test
+    jobs:
+      - job: BuildAndTest
+        displayName: Restore, Build & Test
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: UseDotNet@2
+            displayName: Use .NET $(dotnetVersion)
+            inputs:
+              packageType: sdk
+              version: $(dotnetVersion)
+
+          - script: dotnet restore HealthcareFhirApi.sln
+            displayName: Restore dependencies
+            workingDirectory: $(workingDirectory)
+
+          - script: dotnet build HealthcareFhirApi.sln --no-restore -c $(buildConfiguration)
+            displayName: Build solution
+            workingDirectory: $(workingDirectory)
+
+          - script: dotnet publish src/HealthcareFhirApi.Api/HealthcareFhirApi.Api.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/publish --no-build
+            displayName: Publish API project
+            workingDirectory: $(workingDirectory)
+
+          - publish: $(Build.ArtifactStagingDirectory)/publish
+            displayName: Publish pipeline artifact
+            artifact: fhir-api
+
+  # ── CD: Deploy to Azure App Service ──────────────────────────────────────
+  - stage: Deploy
+    displayName: Deploy to Azure
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployWeb
+        displayName: Deploy to App Service
+        pool:
+          vmImage: ubuntu-latest
+        environment: production
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: fhir-api
+
+                - task: AzureWebApp@1
+                  displayName: Deploy to Azure Web App
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    appType: webAppLinux
+                    appName: $(webAppName)
+                    package: $(Pipeline.Workspace)/fhir-api
+                    runtimeStack: DOTNETCORE|10.0

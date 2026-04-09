@@ -1,0 +1,93 @@
+# Step 7: Initialize Database Schema
+# Run this SQL against Azure SQL Database after deployment
+# Connect via: sqlcmd -S fhirapi-sql.database.windows.net -U fhiradmin -P <PASSWORD> -d FhirDb
+
+name: Initialize Database Schema
+description: Creates all required tables in Azure SQL
+
+sql: |
+  -- Resources table (FHIR data)
+  CREATE TABLE Resources (
+      TenantId nvarchar(450) NOT NULL,
+      ResourceType nvarchar(450) NOT NULL,
+      Id nvarchar(450) NOT NULL,
+      Data nvarchar(max) NOT NULL,
+      LastUpdated datetimeoffset NOT NULL,
+      IsDeleted bit NOT NULL DEFAULT 0,
+      VersionId bigint NOT NULL DEFAULT 1,
+      CONSTRAINT PK_Resources PRIMARY KEY (TenantId, ResourceType, Id)
+  );
+  CREATE INDEX IX_Resources_ResourceType ON Resources (ResourceType);
+  CREATE INDEX IX_Resources_LastUpdated ON Resources (LastUpdated);
+  CREATE INDEX IX_Resources_TenantId ON Resources (TenantId);
+
+  -- Tenants table
+  CREATE TABLE Tenants (
+      Id nvarchar(450) NOT NULL PRIMARY KEY,
+      OrganizationName nvarchar(256) NOT NULL,
+      ContactEmail nvarchar(256) NOT NULL,
+      PlanTier nvarchar(50) NOT NULL DEFAULT 'standard',
+      IsActive bit NOT NULL DEFAULT 1,
+      SmartAuthority nvarchar(max) NULL,
+      DatabaseConnectionString nvarchar(max) NULL,
+      RateLimitRequestsPerSecond int NOT NULL DEFAULT 100,
+      RateLimitBurstSize int NOT NULL DEFAULT 200,
+      CreatedAt datetimeoffset NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+      UpdatedAt datetimeoffset NOT NULL DEFAULT SYSDATETIMEOFFSET()
+  );
+  CREATE UNIQUE INDEX IX_Tenants_OrganizationName ON Tenants (OrganizationName);
+
+  -- API Keys table
+  CREATE TABLE ApiKeys (
+      Id nvarchar(450) NOT NULL PRIMARY KEY,
+      TenantId nvarchar(450) NOT NULL,
+      KeyHash nvarchar(128) NOT NULL,
+      KeyPrefix nvarchar(16) NOT NULL,
+      IsRevoked bit NOT NULL DEFAULT 0,
+      CreatedAt datetimeoffset NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+      RevokedAt datetimeoffset NULL,
+      FOREIGN KEY (TenantId) REFERENCES Tenants(Id)
+  );
+  CREATE UNIQUE INDEX IX_ApiKeys_KeyHash ON ApiKeys (KeyHash);
+  CREATE INDEX IX_ApiKeys_TenantId ON ApiKeys (TenantId);
+
+  -- Bulk Export Jobs table
+  CREATE TABLE BulkExportJobs (
+      Id nvarchar(450) NOT NULL PRIMARY KEY,
+      TenantId nvarchar(450) NOT NULL,
+      Status nvarchar(50) NOT NULL DEFAULT 'Accepted',
+      Level nvarchar(50) NOT NULL DEFAULT 'System',
+      GroupId nvarchar(max) NULL,
+      [Since] datetimeoffset NULL,
+      Types nvarchar(max) NULL,
+      OutputFormat nvarchar(max) NOT NULL DEFAULT 'application/fhir+ndjson',
+      RequestedAt datetimeoffset NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+      CompletedAt datetimeoffset NULL,
+      ProgressPercent int NOT NULL DEFAULT 0,
+      OutputFilesJson nvarchar(max) NULL
+  );
+  CREATE INDEX IX_BulkExportJobs_TenantId ON BulkExportJobs (TenantId);
+  CREATE INDEX IX_BulkExportJobs_Status ON BulkExportJobs (Status);
+
+  -- Metrics Requests table
+  CREATE TABLE MetricsRequests (
+      Id bigint IDENTITY(1,1) NOT NULL PRIMARY KEY,
+      TenantId nvarchar(450) NOT NULL,
+      Endpoint nvarchar(512) NOT NULL,
+      StatusCode int NOT NULL,
+      LatencyMs float NOT NULL,
+      [Timestamp] datetimeoffset NOT NULL DEFAULT SYSDATETIMEOFFSET()
+  );
+  CREATE INDEX IX_MetricsRequests_TenantId_Timestamp ON MetricsRequests (TenantId, [Timestamp]);
+
+  -- Seed default tenant
+  INSERT INTO Tenants (Id, OrganizationName, ContactEmail, PlanTier, IsActive)
+  VALUES ('default', 'DefaultTenant', 'admin@yourdomain.com', 'enterprise', 1);
+
+  -- Seed default API key (key: fhir_testkey123456)
+  INSERT INTO ApiKeys (Id, TenantId, KeyHash, KeyPrefix, IsRevoked)
+  VALUES ('key1', 'default',
+      LOWER(CONVERT(varchar(128), HASHBYTES('SHA2_256', 'fhir_testkey123456'), 2)),
+      'fhir_tes', 0);
+
+  PRINT 'Database initialized successfully.';

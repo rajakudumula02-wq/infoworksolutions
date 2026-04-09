@@ -1,0 +1,28 @@
+# Step 3: Create Azure Cache for Redis
+# Run each command in order
+
+name: Azure Redis Cache Setup
+description: Creates Redis cache for rate limiting and terminology caching
+
+commands:
+  # Create Redis Cache (Basic C0 tier for dev, Standard C1+ for production)
+  - az redis create
+      --resource-group fhir-api-rg
+      --name fhirapi-redis
+      --location eastus
+      --sku Basic
+      --vm-size c0
+      --minimum-tls-version 1.2
+
+  # Get Redis connection info (run after creation completes ~15 min)
+  - az redis show
+      --resource-group fhir-api-rg
+      --name fhirapi-redis
+      --query "{hostName:hostName, sslPort:sslPort}"
+
+  # Get Redis access key
+  - az redis list-keys
+      --resource-group fhir-api-rg
+      --name fhirapi-redis
+      --query primaryKey
+      --output tsv

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dental Image Score Analysis — Requirements &amp; Design</title>
+<style>
+:root {
+  --header-bg: #1a1a2e;
+  --header-accent: #e94560;
+  --sidebar-bg: #f8f9fa;
+  --sidebar-border: #dee2e6;
+  --main-bg: #ffffff;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --code-bg: #f1f3f5;
+  --code-border: #dee2e6;
+  --table-header-bg: #e9ecef;
+  --table-alt-row: #f8f9fa;
+  --table-border: #dee2e6;
+  --badge-bg: #0d6efd;
+  --badge-text: #ffffff;
+  --link-color: #0d6efd;
+  --section-border: #e9ecef;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font-sans); color: var(--text-primary); line-height: 1.6; background: var(--main-bg); }
+header { background: var(--header-bg); color: #fff; padding: 1.5rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: .02em; }
+header p { color: #adb5bd; font-size: .9rem; margin-top: .25rem; }
+.layout { display: flex; min-height: calc(100vh - 80px); }
+aside { width: 280px; min-width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); padding: 1.5rem 1rem; position: sticky; top: 80px; height: calc(100vh - 80px); overflow-y: auto; font-size: .85rem; }
+aside h2 { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-bottom: .75rem; }
+aside ul { list-style: none; }
+aside ul li { margin-bottom: .25rem; }
+aside ul li a { color: var(--text-primary); text-decoration: none; display: block; padding: .25rem .5rem; border-radius: 4px; transition: background .15s; }
+aside ul li a:hover { background: #e9ecef; }
+aside ul li ul { padding-left: 1rem; }
+aside ul li ul li a { color: var(--text-secondary); font-size: .82rem; }
+main { flex: 1; max-width: 960px; padding: 2rem 3rem; }
+h2 { font-size: 1.6rem; font-weight: 700; margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--section-border); }
+h3 { font-size: 1.25rem; font-weight: 600; margin: 2rem 0 .75rem; color: var(--text-primary); }
+h4 { font-size: 1.05rem; font-weight: 600; margin: 1.5rem 0 .5rem; }
+p { margin-bottom: 1rem; }
+ul, ol { margin: 0 0 1rem 1.5rem; }
+li { margin-bottom: .35rem; }
+.badge { display: inline-block; background: var(--badge-bg); color: var(--badge-text); font-size: .7rem; font-weight: 700; padding: .15rem .5rem; border-radius: 10px; vertical-align: middle; margin-right: .35rem; letter-spacing: .03em; }
+.badge-green { background: #198754; }
+.badge-purple { background: #6f42c1; }
+.badge-orange { background: #fd7e14; }
+pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: .85rem; line-height: 1.5; margin-bottom: 1.5rem; }
+code { font-family: var(--font-mono); font-size: .88em; background: var(--code-bg); padding: .1rem .35rem; border-radius: 3px; }
+pre code { background: none; padding: 0; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: .9rem; }
+th, td { padding: .6rem .75rem; border: 1px solid var(--table-border); text-align: left; }
+th { background: var(--table-header-bg); font-weight: 600; }
+tr:nth-child(even) { background: var(--table-alt-row); }
+a { color: var(--link-color); }
+.intro { background: #f0f4ff; border-left: 4px solid var(--badge-bg); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-bottom: 2rem; }
+.property-card { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.property-card h4 { margin-top: 0; }
+.property-card .validates { font-size: .82rem; color: var(--text-secondary); }
+footer { background: var(--header-bg); color: #adb5bd; text-align: center; padding: 1rem; font-size: .8rem; }
+@media print {
+  aside { display: none; }
+  header { position: static; }
+  main { max-width: 100%; padding: 1rem; }
+  .layout { display: block; }
+  pre { white-space: pre-wrap; word-wrap: break-word; }
+}
+@media (max-width: 768px) {
+  aside { display: none; }
+  main { padding: 1.5rem 1rem; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Dental Image Score Analysis</h1>
+  <p>AI-Powered Dental Image Analysis Pipeline — Requirements &amp; Design Specification</p>
+</header>
+<div class="layout">
+<aside>
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><a href="#requirements">Requirements</a>
+      <ul>
+        <li><a href="#req-1">Req 1: Image Upload</a></li>
+        <li><a href="#req-2">Req 2: AI Score Analysis</a></li>
+        <li><a href="#req-3">Req 3: Score Report Retrieval</a></li>
+        <li><a href="#req-4">Req 4: Analysis History</a></li>
+        <li><a href="#req-5">Req 5: Image Quality Validation</a></li>
+        <li><a href="#req-6">Req 6: Security &amp; Access Control</a></li>
+        <li><a href="#req-7">Req 7: Serialization &amp; Parsing</a></li>
+      </ul>
+    </li>
+    <li><a href="#design">Design</a>
+      <ul>
+        <li><a href="#design-overview">Overview</a></li>
+        <li><a href="#design-architecture">Architecture</a></li>
+        <li><a href="#design-components">Components &amp; Interfaces</a></li>
+        <li><a href="#design-data-models">Data Models</a></li>
+        <li><a href="#design-properties">Correctness Properties</a></li>
+        <li><a href="#design-errors">Error Handling</a></li>
+        <li><a href="#design-testing">Testing Strategy</a></li>
+      </ul>
+    </li>
+  </ul>
+</aside>
+<main>
+
+<!-- ============ REQUIREMENTS SECTION ============ -->
+<h2 id="requirements">Requirements</h2>
+
+<div class="intro">
+  <strong>Introduction:</strong> This feature enables AI-powered score analysis of dental images. Users (dentists, dental technicians, or patients) can upload dental images (X-rays, intraoral photos, panoramic scans) and receive structured AI-generated scores covering key dental health indicators such as cavity risk, gum health, plaque buildup, tooth alignment, and overall oral health. The system processes images through an AI model pipeline, returns scored results with confidence levels, and stores analysis history for review.
+</div>
+
+<h3>Glossary</h3>
+<table>
+  <tr><th>Term</th><th>Definition</th></tr>
+  <tr><td>Dental_Image</td><td>A digital image of dental structures, including X-rays, intraoral photographs, or panoramic scans submitted for analysis.</td></tr>
+  <tr><td>AI_Model</td><td>The machine learning model responsible for analyzing dental images and producing scores.</td></tr>
+  <tr><td>Score_Report</td><td>A structured output containing one or more scored indicators derived from a Dental_Image analysis.</td></tr>
+  <tr><td>Indicator</td><td>A specific dental health dimension being scored (e.g., cavity risk, gum health, plaque level, alignment).</td></tr>
+  <tr><td>Confidence_Level</td><td>A numeric value between 0.0 and 1.0 representing the AI_Model's certainty in a given score.</td></tr>
+  <tr><td>Analysis_Request</td><td>A user-initiated request to analyze a Dental_Image.</td></tr>
+  <tr><td>Analysis_Result</td><td>The completed Score_Report associated with a specific Analysis_Request.</td></tr>
+  <tr><td>User</td><td>A dentist, dental technician, or patient interacting with the system.</td></tr>
+  <tr><td>Storage_Service</td><td>The backend service responsible for persisting Dental_Images and Analysis_Results.</td></tr>
+  <tr><td>API</td><td>The application programming interface exposing dental image analysis capabilities.</td></tr>
+</table>
+
+<h3 id="req-1"><span class="badge">REQ-1</span> Image Upload</h3>
+<p><strong>User Story:</strong> As a User, I want to upload a dental image for analysis, so that the AI can evaluate it and return a score report.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>THE API SHALL accept Dental_Image uploads in JPEG, PNG, and DICOM formats.</li>
+  <li>WHEN a Dental_Image is uploaded, THE API SHALL validate that the file size does not exceed 20 MB.</li>
+  <li>WHEN a Dental_Image is uploaded, THE API SHALL validate that the file format is one of the accepted types.</li>
+  <li>IF a Dental_Image exceeds the maximum file size, THEN THE API SHALL return an error response with HTTP status 400 and a descriptive message.</li>
+  <li>IF a Dental_Image has an unsupported format, THEN THE API SHALL return an error response with HTTP status 415 and a descriptive message.</li>
+  <li>WHEN a valid Dental_Image is uploaded, THE API SHALL assign a unique Analysis_Request identifier and return it to the User within 2 seconds.</li>
+</ol>
+
+<h3 id="req-2"><span class="badge badge-green">REQ-2</span> AI Score Analysis</h3>
+<p><strong>User Story:</strong> As a User, I want the system to analyze my dental image using AI, so that I receive objective scores across key dental health indicators.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>WHEN a valid Analysis_Request is received, THE AI_Model SHALL analyze the Dental_Image and produce a Score_Report.</li>
+  <li>THE Score_Report SHALL include scores for the following Indicators: cavity risk, gum health, plaque level, and overall oral health score.</li>
+  <li>THE Score_Report SHALL include a Confidence_Level for each Indicator score.</li>
+  <li>WHEN the AI_Model produces a score for an Indicator, THE score SHALL be a numeric value between 0 and 100.</li>
+  <li>WHEN the AI_Model produces a Confidence_Level, THE value SHALL be between 0.0 and 1.0.</li>
+  <li>WHEN analysis is complete, THE AI_Model SHALL produce the Score_Report within 30 seconds of receiving the Analysis_Request.</li>
+  <li>IF the AI_Model cannot process a Dental_Image due to insufficient image quality, THEN THE AI_Model SHALL return a descriptive error indicating the quality issue.</li>
+</ol>
+
+<h3 id="req-3"><span class="badge badge-purple">REQ-3</span> Score Report Retrieval</h3>
+<p><strong>User Story:</strong> As a User, I want to retrieve the analysis results for a submitted dental image, so that I can review the scores and act on them.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>WHEN a User requests an Analysis_Result by Analysis_Request identifier, THE API SHALL return the corresponding Score_Report.</li>
+  <li>WHILE an Analysis_Request is still being processed, THE API SHALL return a status of "processing" with HTTP status 202.</li>
+  <li>WHEN an Analysis_Request has completed, THE API SHALL return the Score_Report with HTTP status 200.</li>
+  <li>IF a User requests an Analysis_Result with an unknown Analysis_Request identifier, THEN THE API SHALL return HTTP status 404 with a descriptive error message.</li>
+  <li>THE Score_Report SHALL include the timestamp of when the analysis was completed.</li>
+  <li>THE Score_Report SHALL include the original Dental_Image metadata (filename, format, upload timestamp).</li>
+</ol>
+
+<h3 id="req-4"><span class="badge badge-orange">REQ-4</span> Analysis History</h3>
+<p><strong>User Story:</strong> As a User, I want to view a history of my past dental image analyses, so that I can track changes in my dental health over time.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>THE Storage_Service SHALL persist each completed Analysis_Result associated with the User who submitted it.</li>
+  <li>WHEN a User requests their analysis history, THE API SHALL return a paginated list of Analysis_Results sorted by upload timestamp in descending order.</li>
+  <li>THE API SHALL return a maximum of 20 Analysis_Results per page by default.</li>
+  <li>WHERE pagination is used, THE API SHALL include a cursor or page token in the response to retrieve the next page.</li>
+  <li>WHEN a User requests their analysis history, THE API SHALL return results within 3 seconds.</li>
+</ol>
+
+<h3 id="req-5"><span class="badge">REQ-5</span> Image Quality Validation</h3>
+<p><strong>User Story:</strong> As a User, I want the system to detect and inform me when my dental image is too low quality for analysis, so that I can resubmit a better image.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>WHEN a Dental_Image is received, THE AI_Model SHALL assess image quality before performing score analysis.</li>
+  <li>IF a Dental_Image has a resolution below 300×300 pixels, THEN THE API SHALL reject the image with HTTP status 422 and a message indicating insufficient resolution.</li>
+  <li>IF a Dental_Image is determined to be blurry or overexposed beyond acceptable thresholds, THEN THE AI_Model SHALL return a quality error with a description of the specific issue.</li>
+  <li>WHEN a quality error occurs, THE API SHALL return the quality error to the User without storing the Dental_Image in the Storage_Service.</li>
+</ol>
+
+<h3 id="req-6"><span class="badge badge-green">REQ-6</span> Security and Access Control</h3>
+<p><strong>User Story:</strong> As a User, I want my dental images and analysis results to be protected, so that only authorized parties can access my data.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>THE API SHALL require authentication for all endpoints that upload, retrieve, or list Dental_Images and Analysis_Results.</li>
+  <li>WHEN a User requests an Analysis_Result, THE API SHALL verify that the Analysis_Request belongs to the authenticated User.</li>
+  <li>IF a User attempts to access an Analysis_Result belonging to another User, THEN THE API SHALL return HTTP status 403.</li>
+  <li>THE Storage_Service SHALL store Dental_Images and Analysis_Results encrypted at rest.</li>
+  <li>THE API SHALL transmit all data over TLS 1.2 or higher.</li>
+</ol>
+
+<h3 id="req-7"><span class="badge badge-purple">REQ-7</span> Score Report Serialization and Parsing</h3>
+<p><strong>User Story:</strong> As a developer integrating with the system, I want Score_Reports to be serializable and parseable in a standard format, so that I can reliably exchange data between services.</p>
+<h4>Acceptance Criteria</h4>
+<ol>
+  <li>THE API SHALL serialize Score_Reports as JSON.</li>
+  <li>WHEN a JSON Score_Report is received, THE API SHALL parse it into a Score_Report object.</li>
+  <li>IF a JSON payload is malformed, THEN THE API SHALL return HTTP status 400 with a descriptive parse error message.</li>
+  <li>THE Score_Report serializer SHALL format Score_Report objects back into valid JSON representations.</li>
+  <li>FOR ALL valid Score_Report objects, serializing then deserializing SHALL produce an equivalent Score_Report object (round-trip property).</li>
+</ol>
+
+<!-- ============ DESIGN SECTION ============ -->
+<h2 id="design">Design</h2>
+
+<h3 id="design-overview">Overview</h3>
+<p>This feature provides an AI-powered dental image analysis pipeline. Users upload dental images (JPEG, PNG, DICOM) via a REST API, which validates the image, queues it for AI scoring, and returns a structured Score_Report covering cavity risk, gum health, plaque level, and overall oral health. Results are persisted per user and retrievable with full history pagination.</p>
+<p>The system is composed of four primary layers:</p>
+<ul>
+  <li><strong>API Layer</strong>: HTTP endpoints for upload, retrieval, and history</li>
+  <li><strong>Validation Layer</strong>: File format, size, and image quality checks</li>
+  <li><strong>AI Analysis Layer</strong>: Model inference producing scored indicators</li>
+  <li><strong>Storage Layer</strong>: Encrypted persistence of images and results</li>
+</ul>
+<p>Key design decisions:</p>
+<ul>
+  <li><strong>Async processing</strong>: Upload returns immediately with an <code>analysisId</code>; inference runs in a worker. This keeps upload latency under 2 seconds while allowing up to 30 seconds for inference.</li>
+  <li><strong>Separation of validation and inference</strong>: Quality checks run in the validation layer before storage, so low-quality images are never persisted.</li>
+  <li><strong>Encrypted storage</strong>: Both the object store and database records are encrypted at rest.</li>
+</ul>
+
+<h3 id="design-architecture">Architecture</h3>
+<h4>API Endpoints</h4>
+<table>
+  <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+  <tr><td><code>POST</code></td><td><code>/analyses</code></td><td>Upload image, create Analysis_Request</td></tr>
+  <tr><td><code>GET</code></td><td><code>/analyses/{analysisId}</code></td><td>Retrieve Analysis_Result or processing status</td></tr>
+  <tr><td><code>GET</code></td><td><code>/analyses</code></td><td>List paginated analysis history for authenticated user</td></tr>
+</table>
+<p>All endpoints require a valid JWT bearer token.</p>
+
+<h3 id="design-components">Components &amp; Interfaces</h3>
+
+<h4>ValidationService</h4>
+<p>Checks MIME type / file extension against allowed set (<code>image/jpeg</code>, <code>image/png</code>, <code>application/dicom</code>), file size ≤ 20 MB, and pixel dimensions ≥ 300×300.</p>
+<pre><code>interface ValidationService {
+  validateUpload(file: UploadedFile): ValidationResult
+}
+
+type ValidationResult =
+  | { ok: true }
+  | { ok: false; httpStatus: 400 | 415 | 422; message: string }</code></pre>
+
+<h4>ImageQualityChecker</h4>
+<p>Runs lightweight heuristics (Laplacian variance for blur, histogram analysis for exposure) before full inference.</p>
+<pre><code>interface ImageQualityChecker {
+  check(imageBytes: Bytes): QualityCheckResult
+}
+
+type QualityCheckResult =
+  | { pass: true }
+  | { pass: false; reason: "blurry" | "overexposed" | "underexposed"; detail: string }</code></pre>
+
+<h4>AnalysisQueue</h4>
+<pre><code>interface AnalysisQueue {
+  enqueue(request: AnalysisRequest): void
+  dequeue(): AnalysisRequest | null
+  markComplete(analysisId: string, result: ScoreReport): void
+  markFailed(analysisId: string, error: AnalysisError): void
+}</code></pre>
+
+<h4>AIWorker &amp; AIModelClient</h4>
+<pre><code>interface AIWorker {
+  process(request: AnalysisRequest): Promise&lt;ScoreReport&gt;
+}
+
+interface AIModelClient {
+  infer(imageBytes: Bytes): ModelOutput
+}
+
+type ModelOutput = {
+  indicators: Array&lt;{
+    name: IndicatorName
+    score: number        // 0–100
+    confidence: number   // 0.0–1.0
+  }&gt;
+}</code></pre>
+
+<h4>StorageService</h4>
+<pre><code>interface StorageService {
+  saveImage(userId: string, analysisId: string, imageBytes: Bytes, meta: ImageMeta): void
+  getImage(analysisId: string): Bytes
+  saveResult(result: AnalysisResult): void
+  getResult(analysisId: string): AnalysisResult | null
+  listResults(userId: string, cursor: string | null, pageSize: number): Page&lt;AnalysisResult&gt;
+}</code></pre>
+
+<h4>ScoreReportSerializer</h4>
+<pre><code>interface ScoreReportSerializer {
+  serialize(report: ScoreReport): string        // → JSON string
+  deserialize(json: string): ScoreReport        // throws ParseError on malformed input
+}</code></pre>
+
+<h3 id="design-data-models">Data Models</h3>
+
+<h4>AnalysisRequest</h4>
+<pre><code>type AnalysisRequest = {
+  analysisId: string          // UUID v4
+  userId: string
+  uploadTimestamp: string     // ISO 8601
+  status: "pending" | "processing" | "complete" | "failed"
+  imageMeta: ImageMeta
+}
+
+type ImageMeta = {
+  filename: string
+  format: "jpeg" | "png" | "dicom"
+  fileSizeBytes: number
+  uploadTimestamp: string     // ISO 8601
+}</code></pre>
+
+<h4>IndicatorScore</h4>
+<pre><code>type IndicatorName = "cavity_risk" | "gum_health" | "plaque_level" | "overall_oral_health"
+
+type IndicatorScore = {
+  indicator: IndicatorName
+  score: number               // integer 0–100
+  confidence: number          // float 0.0–1.0
+}</code></pre>
+
+<h4>ScoreReport</h4>
+<pre><code>type ScoreReport = {
+  analysisId: string
+  completedAt: string         // ISO 8601
+  indicators: IndicatorScore[]
+  imageMeta: ImageMeta
+}</code></pre>
+
+<h4>AnalysisResult &amp; AnalysisError</h4>
+<pre><code>type AnalysisResult = {
+  request: AnalysisRequest
+  report: ScoreReport | null
+  error: AnalysisError | null
+}
+
+type AnalysisError = {
+  code: "quality_error" | "model_error" | "unknown"
+  message: string
+}</code></pre>
+
+<h4>API Response Shapes</h4>
+<pre><code>// POST /analyses → 202
+type UploadResponse = { analysisId: string; status: "pending" }
+
+// GET /analyses/{id} → 202 while processing
+type ProcessingResponse = { analysisId: string; status: "processing" }
+
+// GET /analyses/{id} → 200 when complete
+type ResultResponse = ScoreReport
+
+// GET /analyses → 200
+type HistoryResponse = { results: AnalysisResult[]; nextCursor: string | null }</code></pre>
+
+<h3 id="design-properties">Correctness Properties</h3>
+
+<div class="property-card">
+  <h4>Property 1: Format validation accepts supported types and rejects unsupported types</h4>
+  <p><em>For any</em> uploaded file, the API must accept it if and only if its format is one of <code>jpeg</code>, <code>png</code>, or <code>dicom</code>; for any file with an unsupported format the response must be HTTP 415 with a descriptive message.</p>
+  <p class="validates">Validates: Requirements 1.1, 1.3, 1.5</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 2: Size validation rejects oversized files with HTTP 400</h4>
+  <p><em>For any</em> uploaded file whose size exceeds 20 MB, the API must return HTTP 400 with a descriptive error message; for any file at or under 20 MB, size must not be the reason for rejection.</p>
+  <p class="validates">Validates: Requirements 1.2, 1.4</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 3: Upload IDs are unique across all requests</h4>
+  <p><em>For any</em> set of valid image uploads, all returned <code>analysisId</code> values must be pairwise distinct.</p>
+  <p class="validates">Validates: Requirements 1.6</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 4: Score_Report structure invariant</h4>
+  <p><em>For any</em> completed Score_Report, it must contain: all four indicators (<code>cavity_risk</code>, <code>gum_health</code>, <code>plaque_level</code>, <code>overall_oral_health</code>), a <code>confidence</code> value per indicator, a <code>completedAt</code> timestamp, and an <code>imageMeta</code> object.</p>
+  <p class="validates">Validates: Requirements 2.2, 2.3, 3.5, 3.6</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 5: Indicator score and confidence range invariants</h4>
+  <p><em>For any</em> indicator in any Score_Report, the <code>score</code> must be an integer in [0, 100] and the <code>confidence</code> must be a float in [0.0, 1.0].</p>
+  <p class="validates">Validates: Requirements 2.4, 2.5</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 6: Quality error includes a descriptive reason</h4>
+  <p><em>For any</em> image that fails quality checks (blurry, overexposed, or insufficient resolution), the error response must include a non-empty string describing the specific quality issue.</p>
+  <p class="validates">Validates: Requirements 2.7, 5.3</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 7: Analysis retrieval round-trip</h4>
+  <p><em>For any</em> successfully completed Analysis_Request, retrieving the result by <code>analysisId</code> must return HTTP 200 with a Score_Report equivalent to the one produced by the AI worker.</p>
+  <p class="validates">Validates: Requirements 3.1, 3.3</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 8: In-progress requests return 202</h4>
+  <p><em>For any</em> Analysis_Request that has not yet completed, the GET endpoint must return HTTP 202 with <code>status: "processing"</code>.</p>
+  <p class="validates">Validates: Requirements 3.2</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 9: Unknown analysis ID returns 404</h4>
+  <p><em>For any</em> <code>analysisId</code> that does not exist in the system, the GET endpoint must return HTTP 404 with a descriptive error message.</p>
+  <p class="validates">Validates: Requirements 3.4</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 10: Completed results are persisted per user</h4>
+  <p><em>For any</em> completed Analysis_Result, querying the Storage_Service for the owning user's history must include that result.</p>
+  <p class="validates">Validates: Requirements 4.1</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 11: History is sorted descending by upload timestamp</h4>
+  <p><em>For any</em> user with multiple completed analyses, the history list must be ordered by <code>uploadTimestamp</code> in descending order.</p>
+  <p class="validates">Validates: Requirements 4.2</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 12: Pagination structure invariants</h4>
+  <p><em>For any</em> history response, the result count must be ≤ 20; when more results exist beyond the current page, a non-null <code>nextCursor</code> must be present.</p>
+  <p class="validates">Validates: Requirements 4.3, 4.4</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 13: Low-resolution images are rejected and not stored</h4>
+  <p><em>For any</em> image with pixel dimensions below 300×300, the API must return HTTP 422 and the image must not appear in the Storage_Service after the request.</p>
+  <p class="validates">Validates: Requirements 5.2, 5.4</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 14: Unauthenticated requests are rejected</h4>
+  <p><em>For any</em> request to any upload, retrieve, or list endpoint that lacks a valid authentication token, the API must return HTTP 401.</p>
+  <p class="validates">Validates: Requirements 6.1</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 15: Cross-user access is forbidden</h4>
+  <p><em>For any</em> Analysis_Result owned by User A, a request from authenticated User B (where B ≠ A) must receive HTTP 403.</p>
+  <p class="validates">Validates: Requirements 6.2, 6.3</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 16: Score_Report serialization round-trip</h4>
+  <p><em>For any</em> valid Score_Report object, serializing it to JSON and then deserializing the resulting string must produce an object equivalent to the original.</p>
+  <p class="validates">Validates: Requirements 7.1, 7.2, 7.4, 7.5</p>
+</div>
+
+<div class="property-card">
+  <h4>Property 17: Malformed JSON returns HTTP 400</h4>
+  <p><em>For any</em> malformed JSON string submitted as a Score_Report payload, the API must return HTTP 400 with a descriptive parse error message.</p>
+  <p class="validates">Validates: Requirements 7.3</p>
+</div>
+
+<h3 id="design-errors">Error Handling</h3>
+
+<table>
+  <tr><th>Scenario</th><th>HTTP Status</th><th>Error Code</th><th>Notes</th></tr>
+  <tr><td>File size &gt; 20 MB</td><td>400</td><td><code>FILE_TOO_LARGE</code></td><td>Include max size in message</td></tr>
+  <tr><td>Unsupported format</td><td>415</td><td><code>UNSUPPORTED_FORMAT</code></td><td>List accepted formats</td></tr>
+  <tr><td>Resolution &lt; 300×300</td><td>422</td><td><code>INSUFFICIENT_RESOLUTION</code></td><td>Include actual vs required dimensions</td></tr>
+  <tr><td>Blurry / overexposed image</td><td>422</td><td><code>IMAGE_QUALITY_ERROR</code></td><td>Include specific quality issue</td></tr>
+  <tr><td>Malformed JSON body</td><td>400</td><td><code>PARSE_ERROR</code></td><td>Include parse error detail</td></tr>
+  <tr><td>Unknown analysisId</td><td>404</td><td><code>NOT_FOUND</code></td><td>Generic message (no info leak)</td></tr>
+  <tr><td>Cross-user access</td><td>403</td><td><code>FORBIDDEN</code></td><td>No detail about the resource</td></tr>
+  <tr><td>Missing / invalid token</td><td>401</td><td><code>UNAUTHORIZED</code></td><td></td></tr>
+  <tr><td>AI model inference failure</td><td>500</td><td><code>MODEL_ERROR</code></td><td>Log internally; return generic message</td></tr>
+  <tr><td>Storage failure</td><td>500</td><td><code>STORAGE_ERROR</code></td><td>Log internally; return generic message</td></tr>
+</table>
+
+<p>All error responses follow a consistent envelope:</p>
+<pre><code>{
+  "error": {
+    "code": "FILE_TOO_LARGE",
+    "message": "File size 25.3 MB exceeds the maximum allowed size of 20 MB."
+  }
+}</code></pre>
+
+<h4>Error Flow: Quality Failure</h4>
+<p>When a quality error occurs the image must NOT be persisted. The flow is:</p>
+<ol>
+  <li>Validator runs format + size checks → pass</li>
+  <li>Image decoded in memory; resolution check → fail → return 422, stop</li>
+  <li>If resolution passes, <code>ImageQualityChecker</code> runs blur/exposure heuristics → fail → return 422, stop</li>
+  <li>Only after all quality checks pass does the image get written to the object store</li>
+</ol>
+
+<h3 id="design-testing">Testing Strategy</h3>
+
+<h4>Dual Testing Approach</h4>
+<p>Both unit tests and property-based tests are required. They are complementary:</p>
+<ul>
+  <li>Unit tests cover specific examples, integration points, and error conditions</li>
+  <li>Property tests verify universal invariants across randomly generated inputs</li>
+</ul>
+
+<h4>Property-Based Testing</h4>
+<p>Each property test must run a minimum of <strong>100 iterations</strong> and include a comment tag referencing the design property.</p>
+
+<table>
+  <tr><th>Test</th><th>Property</th><th>Generator Inputs</th></tr>
+  <tr><td>Format validation</td><td>Property 1</td><td>Random file bytes with random MIME types</td></tr>
+  <tr><td>Size validation</td><td>Property 2</td><td>Random file sizes around the 20 MB boundary</td></tr>
+  <tr><td>Upload ID uniqueness</td><td>Property 3</td><td>Batches of N valid uploads</td></tr>
+  <tr><td>Score_Report structure</td><td>Property 4</td><td>Random ScoreReport instances</td></tr>
+  <tr><td>Score/confidence ranges</td><td>Property 5</td><td>Random IndicatorScore instances</td></tr>
+  <tr><td>Quality error description</td><td>Property 6</td><td>Random low-quality image descriptors</td></tr>
+  <tr><td>Retrieval round-trip</td><td>Property 7</td><td>Random completed AnalysisResult instances</td></tr>
+  <tr><td>In-progress status</td><td>Property 8</td><td>Random pending AnalysisRequest instances</td></tr>
+  <tr><td>Unknown ID → 404</td><td>Property 9</td><td>Random UUID strings not in storage</td></tr>
+  <tr><td>Persistence per user</td><td>Property 10</td><td>Random users and completed results</td></tr>
+  <tr><td>History sort order</td><td>Property 11</td><td>Random lists of AnalysisResult with random timestamps</td></tr>
+  <tr><td>Pagination invariants</td><td>Property 12</td><td>Random page sizes and result counts</td></tr>
+  <tr><td>Low-res rejection + no storage</td><td>Property 13</td><td>Random images with dimensions &lt; 300×300</td></tr>
+  <tr><td>Unauthenticated rejection</td><td>Property 14</td><td>Random requests without tokens</td></tr>
+  <tr><td>Cross-user 403</td><td>Property 15</td><td>Random pairs of distinct users</td></tr>
+  <tr><td>Serialization round-trip</td><td>Property 16</td><td>Random valid ScoreReport objects</td></tr>
+  <tr><td>Malformed JSON → 400</td><td>Property 17</td><td>Random invalid JSON strings</td></tr>
+</table>
+
+<h4>Unit Tests</h4>
+<p>Unit tests should focus on:</p>
+<ul>
+  <li>Specific examples for each endpoint (happy path)</li>
+  <li>Integration between ValidationService and the API handler</li>
+  <li>Integration between AIWorker and StorageService</li>
+  <li>Edge cases: exactly 20 MB file, exactly 300×300 image, confidence = 0.0 and 1.0, score = 0 and 100</li>
+  <li>Error envelope format consistency</li>
+</ul>
+
+</main>
+</div>
+<footer>
+  <p>Generated on <script>document.write(new Date().toISOString().split('T')[0])</script> — Dental Image Score Analysis Specification</p>
+</footer>
+</body>
+</html>
