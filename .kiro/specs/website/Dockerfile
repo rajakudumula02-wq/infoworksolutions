@@ -1,13 +1,9 @@
 FROM nginx:alpine
-
-# Copy all website files
 COPY *.html /usr/share/nginx/html/
 COPY *.png /usr/share/nginx/html/
-
-# Create index.html from homepage
 COPY infoworks-homepage.html /usr/share/nginx/html/index.html
-
-# Debug: show what's there
+RUN mkdir -p /usr/share/nginx/html/lander && \
+    cp /usr/share/nginx/html/*.html /usr/share/nginx/html/lander/ && \
+    cp /usr/share/nginx/html/*.png /usr/share/nginx/html/lander/ 2>/dev/null || true
 RUN ls -la /usr/share/nginx/html/
-
 EXPOSE 80
