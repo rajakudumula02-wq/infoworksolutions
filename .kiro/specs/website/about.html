@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>About Us - Infoworks Solutions</title>
+<title>About Us - Infowork Solutions</title>
 <style>
 :root {
   --primary-blue: #0066CC;
@@ -262,14 +262,43 @@ footer {
   font-size: 14px;
 }
 
+/* Hamburger Menu */
+.menu-toggle { display: none; background: none; border: none; font-size: 28px; cursor: pointer; color: var(--navy); }
+
 @media (max-width: 768px) {
-  .hero h1 {
-    font-size: 36px;
-  }
-  
-  .team-grid {
-    grid-template-columns: 1fr;
-  }
+  .menu-toggle { display: block; }
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 16px 24px; border-bottom: 1px solid var(--border-gray); box-shadow: 0 4px 12px rgba(0,0,0,0.1); gap: 16px; }
+  .nav-links.open { display: flex; }
+  .nav-links a { font-size: 16px; padding: 8px 0; }
+  nav .container { position: relative; }
+  .logo img { height: 40px !important; }
+
+  .container { padding: 0 16px; }
+  .hero { padding: 40px 0 60px; }
+  .hero h1 { font-size: 36px; }
+  .hero p { font-size: 16px; }
+
+  .content { padding: 48px 0; }
+  .content-section h2 { font-size: 28px; }
+  .content-section p { font-size: 16px; }
+
+  .team { padding: 48px 0; }
+  .team h2 { font-size: 28px; }
+  .team-grid { grid-template-columns: 1fr; }
+
+  .values { padding: 48px 0; }
+  .values h2 { font-size: 28px; }
+  .values-grid { grid-template-columns: 1fr; }
+
+  .footer-content { grid-template-columns: 1fr 1fr; }
+
+  .btn-primary, .btn-secondary, .btn-white, .btn-outline-white { width: 100%; text-align: center; display: block; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 28px; }
+  .content-section h2, .team h2, .values h2 { font-size: 24px; }
+  .footer-content { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -278,7 +307,8 @@ footer {
 <!-- Navigation -->
 <nav>
   <div class="container">
-    <a href="infoworks-homepage.html" class="logo"><img src="cropped-Logo-Design-35-180x180.png" alt="Infoworks Solutions" style="height:60px;vertical-align:middle;margin-right:10px">Infoworks Solutions</a>
+    <a href="infoworks-homepage.html" class="logo">Infowork Solutions</a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-links">
       <a href="infoworks-homepage.html#products">Products</a>
       <a href="infoworks-homepage.html#use-cases">Use Cases</a>
@@ -301,7 +331,7 @@ footer {
   <div class="container">
     <div class="content-section">
       <h2>Our Mission</h2>
-      <p>Infoworks Solutions exists to solve a critical problem: dental insurance payers face mounting pressure to comply with federal interoperability mandates while simultaneously improving member engagement and preventive care outcomes.</p>
+      <p>Infowork Solutions exists to solve a critical problem: dental insurance payers face mounting pressure to comply with federal interoperability mandates while simultaneously improving member engagement and preventive care outcomes.</p>
       <p>We provide three independent API platforms that address these challenges head-on: CMS-compliant FHIR infrastructure, AI-powered dental image analysis, and automated member campaign tools.</p>
     </div>
     
@@ -322,19 +352,10 @@ footer {
 <!-- Team -->
 <section class="team">
   <div class="container">
-    <h2>Our Team</h2>
-    <div class="team-grid">
-      <div class="team-member">
-        <h3>Founder</h3>
-        <div class="team-role">CEO</div>
-        <p class="team-bio">First-year analyst with experience in financial services, bringing strategic thinking and business development expertise to healthcare technology.</p>
-      </div>
-      
-      <div class="team-member">
-        <h3>Co-Founder</h3>
-        <div class="team-role">CTO</div>
-        <p class="team-bio">Software engineer with deep dental insurance software experience. Built the MVP and leads all technical development and platform architecture.</p>
-      </div>
+    <h2>Leadership Team</h2>
+    <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+      <h3 style="font-size: 24px; font-weight: 600; color: var(--navy); margin-bottom: 32px;">Founded by Raja Kudumula</h3>
+      <p style="font-size: 18px; color: var(--text-primary); line-height: 1.8;">Our team brings firsthand experience from dental insurance operations, healthcare software engineering, and API platform development. We understand payer challenges and we have built API infrastructure for dental insurance payers, implemented FHIR R4 systems, and developed AI-powered member engagement tools.</p>
     </div>
   </div>
 </section>
@@ -398,16 +419,5 @@ footer {
       <div class="footer-section">
         <h4>Contact</h4>
         <ul>
-          <li><a href="mailto:contact@infoworkssolutions.com">contact@infoworkssolutions.com</a></li>
-          <li><a href="mailto:technical@infoworkssolutions.com">technical@infoworkssolutions.com</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Infoworks Solutions. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
-
-</body>
-</html>
+          <li><a href="/cdn-cgi/l/email-protection#fd9e9293899c9e89bd94939b928a928f968e8e929188899492938ed39e9290"><span class="__cf_email__" data-cfemail="1c7f7372687d7f685c75727a736b736e776f6f737069687573726f327f7371">[email&#160;protected]</span></a></li>
+          <li><a href="/cdn-cgi/l/email-protection#e49081878c8a8d878588a48d8a828b938b968f97978b8891908d8b8a97ca878b89"><span class="

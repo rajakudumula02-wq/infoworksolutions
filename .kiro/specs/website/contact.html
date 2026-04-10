@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact Us - Infoworks Solutions</title>
+<title>Contact Us - Infowork Solutions</title>
 <style>
 :root {
   --primary-blue: #0066CC;
@@ -265,14 +265,37 @@ footer {
   font-size: 14px;
 }
 
+/* Hamburger Menu */
+.menu-toggle { display: none; background: none; border: none; font-size: 28px; cursor: pointer; color: var(--navy); }
+
 @media (max-width: 768px) {
-  .hero h1 {
-    font-size: 36px;
-  }
-  
-  .contact-grid {
-    grid-template-columns: 1fr;
-  }
+  .menu-toggle { display: block; }
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 16px 24px; border-bottom: 1px solid var(--border-gray); box-shadow: 0 4px 12px rgba(0,0,0,0.1); gap: 16px; }
+  .nav-links.open { display: flex; }
+  .nav-links a { font-size: 16px; padding: 8px 0; }
+  nav .container { position: relative; }
+  .logo img { height: 40px !important; }
+
+  .container { padding: 0 16px; }
+  .hero { padding: 40px 0 60px; }
+  .hero h1 { font-size: 36px; }
+  .hero p { font-size: 16px; }
+
+  .contact { padding: 48px 0; }
+  .contact-grid { grid-template-columns: 1fr; }
+
+  .info { padding: 48px 0; }
+  .info h2 { font-size: 28px; }
+
+  .footer-content { grid-template-columns: 1fr 1fr; }
+
+  .btn-primary, .btn-secondary, .btn-white, .btn-outline-white, .contact-link { width: 100%; text-align: center; display: block; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 28px; }
+  .info h2 { font-size: 24px; }
+  .footer-content { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -281,7 +304,8 @@ footer {
 <!-- Navigation -->
 <nav>
   <div class="container">
-    <a href="infoworks-homepage.html" class="logo"><img src="cropped-Logo-Design-35-180x180.png" alt="Infoworks Solutions" style="height:60px;vertical-align:middle;margin-right:10px">Infoworks Solutions</a>
+    <a href="infoworks-homepage.html" class="logo">Infowork Solutions</a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-links">
       <a href="infoworks-homepage.html#products">Products</a>
       <a href="infoworks-homepage.html#use-cases">Use Cases</a>
@@ -308,8 +332,8 @@ footer {
         <div class="contact-icon">🎯</div>
         <h3>Request a Demo</h3>
         <p>See our FHIR APIs, dental image analysis, and SMS campaign platform in action. Schedule a personalized demo with our team.</p>
-        <a href="mailto:contact@infoworkssolutions.com?subject=Demo Request&body=Hi, I'd like to schedule a demo of your platform.%0D%0A%0D%0ACompany:%0D%0ARole:%0D%0ATimezone:%0D%0A%0D%0AProducts interested in:%0D%0A☐ FHIR APIs%0D%0A☐ Dental Image Analysis%0D%0A☐ Member SMS Campaigns" class="contact-link">Schedule Demo</a>
-        <div class="email-display">contact@infoworkssolutions.com</div>
+        <a href="/cdn-cgi/l/email-protection#85e6eaebf1e4e6f1c5ecebe3eaf2eaf7eef6f6eae9f0f1eceaebf6abe6eae8baf6f0e7efe0e6f1b8c1e0e8eaa5d7e0f4f0e0f6f1a3e7eae1fcb8cdeca9a5cca2e1a5e9eceee0a5f1eaa5f6e6ede0e1f0e9e0a5e4a5e1e0e8eaa5eae3a5fceaf0f7a5f5e9e4f1e3eaf7e8aba0b5c1a0b5c4a0b5c1a0b5c4c6eae8f5e4ebfcbfa0b5c1a0b5c4d7eae9e0bfa0b5c1a0b5c4d1ece8e0ffeaebe0bfa0b5c1a0b5c4a0b5c1a0b5c4d5f7eae1f0e6f1f6a5ecebf1e0f7e0f6f1e0e1a5ecebbfa0b5c1a0b5c4671d15a5c3cdccd7a5c4d5ccf6a0b5c1a0b5c4671d15a5c1e0ebf1e4e9a5cce8e4e2e0a5c4ebe4e9fcf6ecf6a0b5c1a0b5c4671d15a5c8e0e8e7e0f7a5d6c8d6a5c6e4e8f5e4ece2ebf6" class="contact-link">Schedule Demo</a>
+        <div class="email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5c3f3332283d3f281c35323a332b332e372f2f333029283533322f723f3331">[email&#160;protected]</a></div>
       </div>
       
       <!-- Technical Inquiry -->
@@ -317,8 +341,8 @@ footer {
         <div class="contact-icon">⚙️</div>
         <h3>Technical Inquiry</h3>
         <p>Questions about API integration, data security, FHIR compliance, or technical specifications? Connect with our engineering team.</p>
-        <a href="mailto:technical@infoworkssolutions.com?subject=Technical Inquiry&body=Hi, I have a technical question about:%0D%0A%0D%0AProduct:%0D%0AQuestion:%0D%0A%0D%0ACompany:%0D%0ARole:" class="contact-link">Contact Engineering</a>
-        <div class="email-display">technical@infoworkssolutions.com</div>
+        <a href="/cdn-cgi/l/email-protection#3c48595f5452555f5d507c55525a534b534e574f4f535049485553524f125f5351034f495e56595f480168595f5452555f5d501c75524d49554e451a5e535845017455101c751c545d4a591c5d1c48595f5452555f5d501c4d49594f485553521c5d5e53494806190c78190c7d190c78190c7d6c4e5358495f4806190c78190c7d6d49594f4855535206190c78190c7d190c78190c7d7f53514c5d524506190c78190c7d6e53505906" class="contact-link">Contact Engineering</a>
+        <div class="email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bdc9d8ded5d3d4dedcd1fdd4d3dbd2cad2cfd6ceced2d1c8c9d4d2d3ce93ded2d0">[email&#160;protected]</a></div>
       </div>
       
       <!-- Partnership -->
@@ -326,8 +350,8 @@ footer {
         <div class="contact-icon">🤝</div>
         <h3>Partnership Opportunities</h3>
         <p>Interested in strategic partnerships, reseller agreements, or white-label solutions? Let's explore how we can work together.</p>
-        <a href="mailto:contact@infoworkssolutions.com?subject=Partnership Inquiry&body=Hi, I'm interested in discussing a partnership opportunity.%0D%0A%0D%0ACompany:%0D%0APartnership type:%0D%0ADetails:" class="contact-link">Discuss Partnership</a>
-        <div class="email-display">contact@infoworkssolutions.com</div>
+        <a href="/cdn-cgi/l/email-protection#96f5f9f8e2f7f5e2d6fff8f0f9e1f9e4fde5e5f9fae3e2fff9f8e5b8f5f9fba9e5e3f4fcf3f5e2abc6f7e4e2f8f3e4e5feffe6b6dff8e7e3ffe4efb0f4f9f2efabdeffbab6dfb1fbb6fff8e2f3e4f3e5e2f3f2b6fff8b6f2ffe5f5e3e5e5fff8f1b6f7b6e6f7e4e2f8f3e4e5feffe6b6f9e6e6f9e4e2e3f8ffe2efb8b3a6d2b3a6d7b3a6d2b3a6d7d5f9fbe6f7f8efacb3a6d2b3a6d7c6f7e4e2f8f3e4e5feffe6b6e2efe6f3acb3a6d2b3a6d7d2f3e2f7fffae5ac" class="contact-link">Discuss Partnership</a>
+        <div class="email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0c6f6362786d6f784c65626a637b637e677f7f636079786563627f226f6361">[email&#160;protected]</a></div>
       </div>
     </div>
   </div>
@@ -370,38 +394,4 @@ footer {
         <ul>
           <li><a href="infoworks-homepage.html#products">AI Dental Analysis</a></li>
           <li><a href="infoworks-homepage.html#products">FHIR APIs</a></li>
-          <li><a href="infoworks-homepage.html#products">SMS Campaigns</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Company</h4>
-        <ul>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="infoworks-homepage.html#use-cases">Use Cases</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Legal</h4>
-        <ul>
-          <li><a href="#privacy">Privacy Policy</a></li>
-          <li><a href="#terms">Terms of Service</a></li>
-          <li><a href="#hipaa">HIPAA Compliance</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Contact</h4>
-        <ul>
-          <li><a href="mailto:contact@infoworkssolutions.com">contact@infoworkssolutions.com</a></li>
-          <li><a href="mailto:technical@infoworkssolutions.com">technical@infoworkssolutions.com</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Infoworks Solutions. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
-
-</body>
-</html>
+          <li><a href="infoworks-homepa

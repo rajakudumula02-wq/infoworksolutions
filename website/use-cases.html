@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Use Cases - Infoworks Solutions</title>
+<title>Use Cases - Infowork Solutions</title>
 <style>
 :root {
   --primary-blue: #0066CC;
@@ -315,14 +315,41 @@ footer {
   font-size: 14px;
 }
 
+/* Hamburger Menu */
+.menu-toggle { display: none; background: none; border: none; font-size: 28px; cursor: pointer; color: var(--navy); }
+
 @media (max-width: 768px) {
-  .hero h1 {
-    font-size: 36px;
-  }
-  
-  .benefits-grid {
-    grid-template-columns: 1fr;
-  }
+  .menu-toggle { display: block; }
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 16px 24px; border-bottom: 1px solid var(--border-gray); box-shadow: 0 4px 12px rgba(0,0,0,0.1); gap: 16px; }
+  .nav-links.open { display: flex; }
+  .nav-links a { font-size: 16px; padding: 8px 0; }
+  nav .container { position: relative; }
+  .logo img { height: 40px !important; }
+
+  .container { padding: 0 16px; }
+  .hero { padding: 40px 0 60px; }
+  .hero h1 { font-size: 36px; }
+  .hero p { font-size: 16px; }
+
+  .use-case-detail { padding: 48px 0; }
+  .use-case-header h2 { font-size: 28px; }
+  .use-case-subtitle { font-size: 16px; }
+
+  .benefits-grid { grid-template-columns: 1fr; }
+
+  .cta { padding: 48px 0; }
+  .cta h2 { font-size: 28px; }
+  .cta p { font-size: 16px; }
+
+  .footer-content { grid-template-columns: 1fr 1fr; }
+
+  .btn-primary, .btn-secondary, .btn-white, .btn-outline-white { width: 100%; text-align: center; display: block; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 28px; }
+  .use-case-header h2, .cta h2 { font-size: 24px; }
+  .footer-content { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -331,7 +358,8 @@ footer {
 <!-- Navigation -->
 <nav>
   <div class="container">
-    <a href="infoworks-homepage.html" class="logo"><img src="cropped-Logo-Design-35-180x180.png" alt="Infoworks Solutions" style="height:60px;vertical-align:middle;margin-right:10px">Infoworks Solutions</a>
+    <a href="infoworks-homepage.html" class="logo">Infowork Solutions</a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-links">
       <a href="products.html">Products</a>
       <a href="use-cases.html">Use Cases</a>
@@ -669,16 +697,5 @@ footer {
       <div class="footer-section">
         <h4>Contact</h4>
         <ul>
-          <li><a href="mailto:contact@infoworkssolutions.com">contact@infoworkssolutions.com</a></li>
-          <li><a href="mailto:technical@infoworkssolutions.com">technical@infoworkssolutions.com</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Infoworks Solutions. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
-
-</body>
-</html>
+          <li><a href="/cdn-cgi/l/email-protection#afccc0c1dbceccdbefc6c1c9c0d8c0ddc4dcdcc0c3dadbc6c0c1dc81ccc0c2"><span class="__cf_email__" data-cfemail="32515d5c46535146725b5c545d455d405941415d5e47465b5d5c411c515d5f">[email&#160;protected]</span></a></li>
+          <li><a href="/cdn-cgi/l/email-protection#6c18090f0402050f0d002c05020a031b031e071f1f030019180503021f420f0301"><span class="
