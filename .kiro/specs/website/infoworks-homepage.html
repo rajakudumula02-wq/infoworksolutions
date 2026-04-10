@@ -639,29 +639,59 @@ footer {
   font-size: 14px;
 }
 
+/* Hamburger Menu */
+.hamburger { display: none; background: none; border: none; font-size: 28px; cursor: pointer; padding: 4px 8px; }
+
 @media (max-width: 768px) {
-  .hero h1 {
-    font-size: 36px;
-  }
-  
-  .nav-links {
-    gap: 16px;
-    font-size: 14px;
-  }
-  
+  .hamburger { display: block; }
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 16px 24px; border-bottom: 1px solid var(--border-gray); box-shadow: 0 4px 12px rgba(0,0,0,0.1); gap: 16px; }
+  .nav-links.open { display: flex; }
+  .nav-links a { font-size: 16px; padding: 8px 0; }
+  nav .container { position: relative; }
+  .logo { font-size: 0; line-height: 1; }
+  .logo img { height: 40px !important; display: inline-block; }
+
+  .container { padding: 0 16px; }
+  .hero { padding: 40px 0 60px; }
+  .hero h1 { font-size: 28px; }
+  .hero p, .hero .subheading { font-size: 16px; }
+  .hero-ctas { flex-direction: column; align-items: center; }
+
   .trust-badges {
     flex-direction: column;
     gap: 16px;
     align-items: center;
   }
-  
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .api-grid {
-    grid-template-columns: 1fr;
-  }
+
+  .core-products h2, .integration h2, .use-cases h2, .api-section h2, .specs h2, .cta-section h2 { font-size: 28px; }
+
+  .product-grid, .api-grid, .use-case-grid, .secondary-product ul, .spec-list { grid-template-columns: 1fr; }
+  .specs-grid { grid-template-columns: 1fr 1fr; }
+  .footer-content { grid-template-columns: 1fr 1fr; }
+
+  .product-card, .use-case, .spec-card { padding: 24px; }
+  .product-card h3 { font-size: 20px; }
+
+  .flow-steps { grid-template-columns: 1fr; gap: 24px; }
+
+  .api-demo-header { flex-direction: column; gap: 4px; font-size: 12px; }
+  .api-demo-body { font-size: 11px; padding: 16px; }
+
+  .cta-section h2 { font-size: 28px; }
+  .cta-section p { font-size: 16px; }
+  .cta-buttons { flex-direction: column; align-items: center; }
+
+  .btn-primary, .btn-secondary, .btn-white, .btn-outline-white { width: 100%; text-align: center; display: block; }
+
+  .product-highlight { font-size: 14px; }
+  .product-highlight strong { font-size: 16px; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 28px; }
+  h2, .core-products h2, .integration h2, .use-cases h2, .api-section h2, .specs h2, .cta-section h2 { font-size: 24px; }
+  .specs-grid { grid-template-columns: 1fr; }
+  .footer-content { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -671,6 +701,7 @@ footer {
 <nav>
   <div class="container">
     <a href="#" class="logo"><img src="cropped-Logo-Design-35-180x180.png" alt="Infoworks Solutions" style="height:60px;vertical-align:middle;margin-right:10px">Infoworks Solutions</a>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
     <div class="nav-links">
       <a href="products.html">Products</a>
       <a href="use-cases.html">Use Cases</a>
